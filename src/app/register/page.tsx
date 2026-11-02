@@ -138,22 +138,31 @@ export default function PatientRegister() {
               ))}
             </div>
           </div>
-          <div>
-            <p className="label">Have you had mental health support before? <span className="text-muted">(optional)</span></p>
+          <div data-require-one="Previous mental health support">
+            <p className="label">Have you had mental health support before?</p>
             <div className="flex gap-2">
               {[
                 ["yes", "Yes"],
                 ["no", "No"],
-                ["", "Prefer not to say"],
               ].map(([v, l]) => (
-                <label key={l} className="chip">
-                  <input type="radio" name="previous_support" value={v} className="sr-only" checked={prev === v} onChange={() => setPrev(v)} />
+                <label key={v} className="chip">
+                  <input type="radio" name="previous_support" value={v} required className="sr-only" checked={prev === v} onChange={() => setPrev(v)} />
                   {l}
                 </label>
               ))}
             </div>
             {prev === "yes" && (
-              <textarea className="input mt-3" name="previous_support_details" rows={2} placeholder="What kind of support, and was it helpful? (optional)" />
+              <div className="mt-3">
+                <label className="label" htmlFor="previous_support_details">What support did you have, and was it helpful?</label>
+                <textarea
+                  className="input"
+                  id="previous_support_details"
+                  name="previous_support_details"
+                  rows={2}
+                  required
+                  placeholder="For example: counselling at university for 3 months, it helped a little"
+                />
+              </div>
             )}
           </div>
           <div className="flex gap-3">

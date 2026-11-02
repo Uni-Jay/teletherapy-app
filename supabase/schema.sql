@@ -36,8 +36,9 @@ create table patient_profiles (
   city text not null,
   emotional_state int not null check (emotional_state between 1 and 10),
   concerns text[] not null default '{}',
-  previous_support boolean,
+  previous_support boolean not null,
   previous_support_details text,
+  check (previous_support = false or length(coalesce(previous_support_details, '')) > 0),
   support_areas text[] not null default '{}',
   preferred_support text not null default 'either' check (preferred_support in ('video','audio','either')),
   created_at timestamptz not null default now()

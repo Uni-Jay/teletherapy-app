@@ -55,7 +55,7 @@ export default async function TherapistPatient({ params }: { params: Promise<{ i
                   <div><dt className="text-muted">Prefers</dt><dd className="capitalize">{details.preferred_support}</dd></div>
                   <div>
                     <dt className="text-muted">Previous support</dt>
-                    <dd>{details.previous_support === null ? "Not given" : details.previous_support ? "Yes" : "No"}</dd>
+                    <dd>{details.previous_support ? "Yes" : "No"}</dd>
                   </div>
                   {details.previous_support_details && <div className="col-span-2"><dt className="text-muted">Details</dt><dd>{details.previous_support_details}</dd></div>}
                 </dl>

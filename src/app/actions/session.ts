@@ -58,6 +58,8 @@ export async function registerPatient(_: FormState, form: FormData): Promise<For
   if (!NIGERIAN_STATES.includes(state) || !city) return { error: "Please enter your state and city." };
   if (!(emotional >= 1 && emotional <= 10)) return { error: "Please tell us how you're feeling right now." };
   if (concerns.length === 0) return { error: "Choose at least one mental health concern." };
+  if (prev !== "yes" && prev !== "no") return { error: "Please tell us whether you've had mental health support before." };
+  if (prev === "yes" && !prevDetails) return { error: "Please tell us what mental health support you had before." };
   if (areas.length === 0) return { error: "Choose at least one area where you need support." };
   if (!["video", "audio", "either"].includes(preferred)) return { error: "Choose your preferred type of support." };
   if (form.get("agree") !== "on") return { error: "Please agree to the privacy policy and terms to continue." };
@@ -83,8 +85,8 @@ export async function registerPatient(_: FormState, form: FormData): Promise<For
     city,
     emotional_state: emotional,
     concerns,
-    previous_support: prev === "yes" ? true : prev === "no" ? false : null,
-    previous_support_details: prevDetails || null,
+    previous_support: prev === "yes",
+    previous_support_details: prev === "yes" ? prevDetails.slice(0, 2000) : null,
     support_areas: areas,
     preferred_support: preferred,
   });
