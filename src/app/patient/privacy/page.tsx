@@ -12,7 +12,7 @@ export default async function PrivacyPage() {
   const user = await requireRole("patient");
   const supabase = await createClient();
   const [{ data: appts }, { data: consents }, settings] = await Promise.all([
-    supabase.from("appointments").select("therapist_id, therapist:therapist_profiles(profiles(full_name))").eq("patient_id", user.id),
+    supabase.from("appointments").select("therapist_id, therapist:therapist_profiles(profiles!therapist_profiles_id_fkey(full_name))").eq("patient_id", user.id),
     supabase.from("consents").select("therapist_id, granted").eq("patient_id", user.id),
     getSettings(),
   ]);

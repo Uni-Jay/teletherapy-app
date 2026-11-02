@@ -34,7 +34,7 @@ export default async function TherapistsPage({ searchParams }: { searchParams: P
 
   let query = supabase
     .from("therapist_profiles")
-    .select("id, title, bio, photo_url, specialties, languages, years_experience, profiles(full_name)")
+    .select("id, title, bio, photo_url, specialties, languages, years_experience, profiles!therapist_profiles_id_fkey(full_name)")
     .eq("status", "approved")
     .order("years_experience", { ascending: false });
   if (sp.specialty) query = query.contains("specialties", [sp.specialty]);

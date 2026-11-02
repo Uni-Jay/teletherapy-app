@@ -17,7 +17,7 @@ export default async function AdminPayments() {
     db.from("subscriptions").select("plan, status, current_period_end").eq("status", "active").gt("current_period_end", new Date().toISOString()),
     db
       .from("appointments")
-      .select("id, starts_at, therapist_fee, therapist_id, therapist:therapist_profiles(profiles(full_name))")
+      .select("id, starts_at, therapist_fee, therapist_id, therapist:therapist_profiles(profiles!therapist_profiles_id_fkey(full_name))")
       .eq("status", "completed")
       .eq("payout_status", "unpaid")
       .order("starts_at"),

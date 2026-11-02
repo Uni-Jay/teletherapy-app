@@ -2,7 +2,7 @@ import Link from "next/link";
 import { requireRole } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { getSettings } from "@/lib/settings";
-import { formatDateTime, formatDate } from "@/lib/format";
+import { firstName, formatDateTime, formatDate } from "@/lib/format";
 import { PageHeader, StatusBadge } from "@/components/ui/misc";
 import { MoodCheckin } from "@/components/mood-checkin";
 import { CrisisBanner } from "@/components/crisis-banner";
@@ -16,7 +16,7 @@ export default async function PatientHome() {
   const [{ data: next }, { data: assessment }, { data: sub }, settings] = await Promise.all([
     supabase
       .from("appointments")
-      .select("id, starts_at, type, status, therapist:therapist_profiles(id, profiles(full_name))")
+      .select("id, starts_at, type, status, therapist:therapist_profiles(id, profiles!therapist_profiles_id_fkey(full_name))")
       .eq("patient_id", user.id)
       .in("status", ["requested", "accepted"])
       .gte("ends_at", now)
@@ -29,12 +29,12 @@ export default async function PatientHome() {
   ]);
 
   const therapistName = (next?.therapist as unknown as { profiles: { full_name: string } } | null)?.profiles?.full_name;
-  const firstName = user.fullName.split(" ")[0] || "there";
+  const name = firstName(user.fullName) || "there";
   const subActive = sub && ["active", "cancelled"].includes(sub.status) && sub.current_period_end && sub.current_period_end > now;
 
   return (
     <div className="space-y-6">
-      <PageHeader title={`Hello, ${firstName}`} text="Here's your space to check in, book sessions and track your progress." />
+      <PageHeader title={`Hello, ${name}`} text="Here's your space to check in, book sessions and track your progress." />
 
       {assessment?.risk === "high" && <CrisisBanner helplines={settings.helplines} />}
 

@@ -11,7 +11,7 @@ export default async function PatientMessages() {
   const supabase = await createClient();
   const { data } = await supabase
     .from("appointments")
-    .select("therapist_id, therapist:therapist_profiles(photo_url, profiles(full_name))")
+    .select("therapist_id, therapist:therapist_profiles(photo_url, profiles!therapist_profiles_id_fkey(full_name))")
     .eq("patient_id", user.id)
     .in("status", ["requested", "accepted", "completed"]);
   const { data: unread } = await supabase.from("messages").select("therapist_id").eq("patient_id", user.id).neq("sender_id", user.id).is("read_at", null);

@@ -51,3 +51,20 @@ export const STATUS_LABEL: Record<string, string> = {
 export function nowMs() {
   return Date.now();
 }
+
+const TITLES = /^(dr|mr|mrs|ms|miss|prof|pastor|rev|sir|engr|barr)\.?$/i;
+
+/** First name without honorifics: "Dr. Amaka Okafor" → "Amaka". */
+export function firstName(full: string) {
+  return full.split(/\s+/).filter((w) => w && !TITLES.test(w))[0] ?? "";
+}
+
+/** Two-letter initials without honorifics: "Dr. Amaka Okafor" → "AO". */
+export function initials(full: string) {
+  return full
+    .split(/\s+/)
+    .filter((w) => w && !TITLES.test(w))
+    .slice(0, 2)
+    .map((w) => w[0]?.toUpperCase())
+    .join("");
+}

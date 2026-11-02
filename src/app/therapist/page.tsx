@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { requireRole } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
-import { formatDateTime, naira } from "@/lib/format";
+import { firstName, formatDateTime, naira } from "@/lib/format";
 import { EmptyState, PageHeader, StatCard } from "@/components/ui/misc";
 import { TherapistStatus } from "@/components/therapist-status";
 import { BookingRequest, type RequestRow } from "@/components/booking-request";
@@ -38,7 +38,7 @@ export default async function TherapistHome() {
 
   return (
     <div className="space-y-6">
-      <PageHeader title={`Welcome, ${user.fullName.split(" ")[0] || "Doctor"}`} />
+      <PageHeader title={`Welcome, ${firstName(user.fullName) || "back"}`} />
       {tp && <TherapistStatus status={tp.status} reason={tp.rejection_reason} hasLicence={(docCount ?? 0) > 0} profileDone={Boolean(tp.bio && tp.specialties?.length)} />}
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">

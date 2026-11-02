@@ -1,11 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
+import { initials } from "@/lib/format";
 export function Avatar({ name, url, size = 48 }: { name: string; url?: string | null; size?: number }) {
-  const initials = name
-    .split(" ")
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((n) => n[0]?.toUpperCase())
-    .join("");
+  const letters = initials(name);
   return url ? (
     <img src={url} alt={name} width={size} height={size} className="shrink-0 rounded-full object-cover" style={{ width: size, height: size }} />
   ) : (
@@ -13,7 +9,7 @@ export function Avatar({ name, url, size = 48 }: { name: string; url?: string | 
       className="flex shrink-0 items-center justify-center rounded-full bg-brand-100 font-semibold text-brand-800"
       style={{ width: size, height: size, fontSize: size / 2.8 }}
     >
-      {initials || "?"}
+      {letters || "?"}
     </div>
   );
 }

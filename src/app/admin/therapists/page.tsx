@@ -15,7 +15,7 @@ export default async function AdminTherapists({ searchParams }: { searchParams: 
   const db = createAdminClient();
   const { data } = await db
     .from("therapist_profiles")
-    .select("id, title, status, created_at, specialties, licence_number, profiles(full_name, email), therapist_documents(id, kind)")
+    .select("id, title, status, created_at, specialties, licence_number, profiles!therapist_profiles_id_fkey(full_name, email), therapist_documents(id, kind)")
     .eq("status", status)
     .order("created_at", { ascending: false });
   const rows = (data ?? []) as unknown as {

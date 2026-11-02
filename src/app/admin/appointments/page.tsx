@@ -14,7 +14,7 @@ export default async function AdminAppointments({ searchParams }: { searchParams
   const db = createAdminClient();
   let q = db
     .from("appointments")
-    .select("id, starts_at, type, status, status_reason, patient:profiles!appointments_patient_id_fkey(full_name), therapist:therapist_profiles(profiles(full_name))")
+    .select("id, starts_at, type, status, status_reason, patient:profiles!appointments_patient_id_fkey(full_name), therapist:therapist_profiles(profiles!therapist_profiles_id_fkey(full_name))")
     .order("starts_at", { ascending: false })
     .limit(300);
   if (status !== "all") q = q.eq("status", status);

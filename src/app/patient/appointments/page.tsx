@@ -26,7 +26,7 @@ export default async function PatientAppointments({ searchParams }: { searchPara
   const supabase = await createClient();
   const { data } = await supabase
     .from("appointments")
-    .select("id, starts_at, ends_at, type, status, status_reason, therapist_id, therapist:therapist_profiles(profiles(full_name))")
+    .select("id, starts_at, ends_at, type, status, status_reason, therapist_id, therapist:therapist_profiles(profiles!therapist_profiles_id_fkey(full_name))")
     .eq("patient_id", user.id)
     .order("starts_at", { ascending: false });
   const { cancellation_cutoff_hours } = await getSettings();
