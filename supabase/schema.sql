@@ -453,6 +453,135 @@ create policy "docs delete own" on storage.objects for delete
 alter publication supabase_realtime add table messages;
 
 -- =====================================================================
+-- Calls, notifications, reviews, session notes
+-- =====================================================================
+alter table profiles add column notify_email boolean not null default true;
+alter table profiles add column notify_sms boolean not null default true;
+alter table therapist_profiles add column rating_avg numeric(3,2) not null default 0;
+alter table therapist_profiles add column rating_count int not null default 0;
+
+-- Video and voice calls (built-in WebRTC). Appointment sessions and calls started from chat both live here.
+create table calls (
+  id uuid primary key default gen_random_uuid(),
+  appointment_id uuid references appointments(id) on delete set null,
+  patient_id uuid not null references profiles(id) on delete cascade,
+  therapist_id uuid not null references therapist_profiles(id) on delete cascade,
+  caller_id uuid not null references profiles(id) on delete cascade,
+  callee_id uuid not null references profiles(id) on delete cascade,
+  type session_type not null default 'video',
+  status text not null default 'ringing' check (status in ('ringing','ongoing','ended','declined','missed','cancelled')),
+  created_at timestamptz not null default now(),
+  answered_at timestamptz,
+  ended_at timestamptz
+);
+create index on calls (callee_id, status, created_at);
+create unique index calls_one_live_per_appointment on calls (appointment_id) where status in ('ringing','ongoing');
+
+-- Signaling messages exchanged while a call connects (offer, answer, network candidates)
+create table call_signals (
+  id bigint generated always as identity primary key,
+  call_id uuid not null references calls(id) on delete cascade,
+  sender_id uuid not null references profiles(id) on delete cascade,
+  from_session text not null,
+  to_session text,
+  kind text not null check (kind in ('hello','offer','answer','ice','bye')),
+  payload jsonb,
+  created_at timestamptz not null default now()
+);
+create index on call_signals (call_id, id);
+
+create table notifications (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references profiles(id) on delete cascade,
+  kind text not null,
+  title text not null,
+  body text,
+  link text,
+  read_at timestamptz,
+  created_at timestamptz not null default now()
+);
+create index on notifications (user_id, created_at desc);
+
+create table reviews (
+  id uuid primary key default gen_random_uuid(),
+  appointment_id uuid not null unique references appointments(id) on delete cascade,
+  patient_id uuid not null references profiles(id) on delete cascade,
+  therapist_id uuid not null references therapist_profiles(id) on delete cascade,
+  display_name text not null,
+  rating int not null check (rating between 1 and 5),
+  comment text check (length(comment) <= 1500),
+  created_at timestamptz not null default now()
+);
+create index on reviews (therapist_id, created_at desc);
+
+-- Private notes a therapist keeps for each session. Patients and admins cannot read them.
+create table session_notes (
+  appointment_id uuid primary key references appointments(id) on delete cascade,
+  therapist_id uuid not null references therapist_profiles(id) on delete cascade,
+  body text not null default '',
+  updated_at timestamptz not null default now()
+);
+
+create or replace function public.refresh_rating()
+returns trigger language plpgsql security definer set search_path = public as $$
+declare t uuid := coalesce(new.therapist_id, old.therapist_id);
+begin
+  update therapist_profiles set
+    rating_avg = coalesce((select round(avg(rating)::numeric, 2) from reviews where therapist_id = t), 0),
+    rating_count = (select count(*) from reviews where therapist_id = t)
+  where id = t;
+  return null;
+end;
+$$;
+create trigger reviews_refresh_rating after insert or update or delete on reviews
+  for each row execute function public.refresh_rating();
+
+alter table calls enable row level security;
+alter table call_signals enable row level security;
+alter table notifications enable row level security;
+alter table reviews enable row level security;
+alter table session_notes enable row level security;
+
+create policy "call parties read" on calls for select using (caller_id = auth.uid() or callee_id = auth.uid() or public.is_admin());
+create policy "call parties update" on calls for update using (caller_id = auth.uid() or callee_id = auth.uid());
+create policy "signal parties read" on call_signals for select
+  using (exists (select 1 from calls c where c.id = call_id and (c.caller_id = auth.uid() or c.callee_id = auth.uid())));
+create policy "signal parties send" on call_signals for insert
+  with check (sender_id = auth.uid() and exists (
+    select 1 from calls c where c.id = call_id and c.status in ('ringing','ongoing') and (c.caller_id = auth.uid() or c.callee_id = auth.uid())));
+
+create policy "own notifications" on notifications for select using (user_id = auth.uid());
+create policy "mark own notifications" on notifications for update using (user_id = auth.uid());
+
+create policy "reviews are public" on reviews for select using (true);
+create policy "patient reviews own completed session" on reviews for insert
+  with check (patient_id = auth.uid() and exists (
+    select 1 from appointments a where a.id = appointment_id and a.patient_id = auth.uid()
+      and a.therapist_id = reviews.therapist_id and a.status = 'completed'));
+
+create policy "therapist own notes" on session_notes for all
+  using (therapist_id = auth.uid()) with check (therapist_id = auth.uid()
+    and exists (select 1 from appointments a where a.id = appointment_id and a.therapist_id = auth.uid()));
+
+-- Call parties may only move a call through its states, never change who is on it
+create or replace function public.guard_call_update()
+returns trigger language plpgsql security definer set search_path = public as $$
+begin
+  if auth.uid() is not null and not public.is_admin() then
+    new.patient_id := old.patient_id; new.therapist_id := old.therapist_id;
+    new.caller_id := old.caller_id; new.callee_id := old.callee_id;
+    new.appointment_id := old.appointment_id; new.type := old.type; new.created_at := old.created_at;
+    if old.status in ('ended','declined','missed','cancelled') then new.status := old.status; end if;
+  end if;
+  return new;
+end;
+$$;
+create trigger guard_call before update on calls for each row execute function public.guard_call_update();
+
+alter publication supabase_realtime add table notifications;
+alter publication supabase_realtime add table calls;
+
+-- =====================================================================
 -- Make yourself an admin (run after signing up with your email):
 --   update profiles set role = 'admin' where email = 'you@example.com';
 -- =====================================================================

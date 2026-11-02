@@ -1,20 +1,20 @@
 import { requireRole } from "@/lib/auth";
-import { AppShell } from "@/components/app-shell";
+import { AppShell, type NavItem } from "@/components/app-shell";
 
-const NAV = [
-  { href: "/admin", label: "Dashboard" },
-  { href: "/admin/therapists", label: "Therapists" },
-  { href: "/admin/users", label: "Users" },
-  { href: "/admin/appointments", label: "Appointments" },
-  { href: "/admin/payments", label: "Revenue & payouts" },
-  { href: "/admin/reports", label: "Reports & flags" },
-  { href: "/admin/settings", label: "Settings" },
+const NAV: NavItem[] = [
+  { href: "/admin", label: "Dashboard", icon: "gauge" },
+  { href: "/admin/therapists", label: "Therapists", icon: "stethoscope" },
+  { href: "/admin/users", label: "Users", icon: "users" },
+  { href: "/admin/appointments", label: "Appointments", icon: "calendar" },
+  { href: "/admin/payments", label: "Revenue & payouts", icon: "wallet" },
+  { href: "/admin/reports", label: "Reports & flags", icon: "alert" },
+  { href: "/admin/settings", label: "Settings", icon: "settings" },
 ];
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const user = await requireRole("admin");
   return (
-    <AppShell nav={NAV} userName={user.fullName || user.email || "Admin"} roleLabel="Admin">
+    <AppShell nav={NAV} userName={user.fullName || user.email || "Admin"} roleLabel="Admin" userId={user.id}>
       {children}
     </AppShell>
   );

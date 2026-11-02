@@ -1,19 +1,12 @@
 "use server";
 import { revalidatePath } from "next/cache";
-import { headers } from "next/headers";
 import { requireRole } from "@/lib/auth";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { SPECIALTIES } from "@/lib/constants";
-import { sendEmail, sendSms, emailLayout } from "@/lib/notify";
+import { notify } from "@/lib/notifications";
 import { formatDateTime } from "@/lib/format";
 
 export type ActionState = { error?: string; message?: string } | undefined;
-
-async function siteUrl() {
-  if (process.env.NEXT_PUBLIC_SITE_URL) return process.env.NEXT_PUBLIC_SITE_URL;
-  const h = await headers();
-  return `${h.get("x-forwarded-proto") ?? "https"}://${h.get("host")}`;
-}
 
 export async function updateTherapistProfile(_: ActionState, form: FormData): Promise<ActionState> {
   const user = await requireRole("therapist");
@@ -120,14 +113,12 @@ export async function removeBlockedDate(form: FormData) {
   revalidatePath("/therapist/availability");
 }
 
-async function notifyPatient(appointmentId: string, subject: string, title: string, body: (when: string) => string, sms?: (when: string) => string) {
+async function notifyPatient(appointmentId: string, kind: string, title: string, body: (when: string) => string, sms?: (when: string) => string) {
   const admin = createAdminClient();
   const { data: a } = await admin.from("appointments").select("starts_at, patient_id").eq("id", appointmentId).single();
   if (!a) return;
-  const { data: p } = await admin.from("profiles").select("email, phone").eq("id", a.patient_id).single();
   const when = formatDateTime(a.starts_at);
-  if (p?.email) await sendEmail(p.email, subject, emailLayout(title, body(when), { label: "View my sessions", url: `${await siteUrl()}/patient/appointments` }));
-  if (sms && p?.phone) await sendSms(p.phone, sms(when));
+  await notify(a.patient_id, { kind, title, body: body(when), link: "/patient/appointments", email: true, sms: sms?.(when) });
 }
 
 export async function respondToBooking(form: FormData) {
@@ -148,13 +139,13 @@ export async function respondToBooking(form: FormData) {
   if (decision === "accepted") {
     await notifyPatient(
       id,
-      "Your session is confirmed",
-      "Session confirmed",
-      (when) => `<p>${user.fullName} confirmed your session on <b>${when}</b>. You'll get a reminder before it starts.</p>`,
+      "confirmed",
+      `${user.fullName} confirmed your session`,
+      (when) => `Your session on ${when} is confirmed. You'll get a reminder before it starts.`,
       (when) => `Your session with ${user.fullName} on ${when} is confirmed.`
     );
   } else {
-    await notifyPatient(id, "Session request declined", "Your request was declined", (when) => `<p>${user.fullName} can't make ${when}. ${reason ? `Reason: ${reason}. ` : ""}Please choose another time or therapist.</p>`);
+    await notifyPatient(id, "declined", `${user.fullName} couldn't take your request`, (when) => `${user.fullName} can't make ${when}. ${reason ? `Reason: ${reason}. ` : ""}Please choose another time or therapist.`);
   }
   revalidatePath("/therapist", "layout");
 }
@@ -173,19 +164,30 @@ export async function therapistCancel(form: FormData) {
     .select("id")
     .single();
   if (!data) return;
-  await notifyPatient(id, "Session cancelled", "Your session was cancelled", (when) => `<p>${user.fullName} had to cancel your session on ${when}. Reason: ${reason}. Please book another time.</p>`, (when) => `Your session on ${when} was cancelled by your therapist. Please rebook.`);
+  await notifyPatient(id, "cancelled", `${user.fullName} cancelled your session`, (when) => `Your session on ${when} was cancelled. Reason: ${reason}. Please book another time.`, (when) => `Your session on ${when} was cancelled by your therapist. Please rebook.`);
   revalidatePath("/therapist", "layout");
 }
 
 export async function markCompleted(form: FormData) {
   const user = await requireRole("therapist");
   const supabase = await createClient();
-  await supabase
+  const id = String(form.get("id"));
+  const { data } = await supabase
     .from("appointments")
     .update({ status: "completed" })
-    .eq("id", String(form.get("id")))
+    .eq("id", id)
     .eq("therapist_id", user.id)
     .eq("status", "accepted")
-    .lte("starts_at", new Date().toISOString());
+    .lte("starts_at", new Date().toISOString())
+    .select("patient_id")
+    .single();
+  if (data) {
+    await notify(data.patient_id, {
+      kind: "review",
+      title: `How was your session with ${user.fullName}?`,
+      body: "Rate your session to help others find the right therapist.",
+      link: `/patient/appointments/${id}/review`,
+    });
+  }
   revalidatePath("/therapist", "layout");
 }

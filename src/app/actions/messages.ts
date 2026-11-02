@@ -1,6 +1,7 @@
 "use server";
 import { getCurrentUser } from "@/lib/auth";
-import { createClient } from "@/lib/supabase/server";
+import { createClient, createAdminClient } from "@/lib/supabase/server";
+import { notify } from "@/lib/notifications";
 
 export async function sendMessage(patientId: string, therapistId: string, body: string) {
   const user = await getCurrentUser();
@@ -14,6 +15,23 @@ export async function sendMessage(patientId: string, therapistId: string, body: 
     .select("id, sender_id, body, created_at")
     .single();
   if (error) return { error: "You can message a therapist once you have booked a session with them." };
+
+  // One notification per conversation every 10 minutes, so a burst of messages doesn't flood the bell
+  const recipient = user.id === patientId ? therapistId : patientId;
+  const link = user.id === patientId ? `/therapist/messages/${patientId}` : `/patient/messages/${therapistId}`;
+  const admin = createAdminClient();
+  const { data: recent } = await admin
+    .from("notifications")
+    .select("id")
+    .eq("user_id", recipient)
+    .eq("kind", "message")
+    .eq("link", link)
+    .is("read_at", null)
+    .gte("created_at", new Date(Date.now() - 10 * 60000).toISOString())
+    .limit(1);
+  if (!recent?.length) {
+    await notify(recipient, { kind: "message", title: `New message from ${user.fullName}`, body: text.slice(0, 120), link });
+  }
   return { message: data };
 }
 

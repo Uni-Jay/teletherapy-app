@@ -31,12 +31,12 @@ export default async function TherapistAppointments() {
     <div className="space-y-8">
       <PageHeader title="Appointments" />
       <section>
-        <h2 className="mb-3 font-semibold">Requests ({requests.length})</h2>
+        <h2 className="font-display mb-3 text-lg font-bold">Requests ({requests.length})</h2>
         {requests.length ? <div className="grid gap-3 lg:grid-cols-2">{requests.map((r) => <BookingRequest key={r.id} r={r} />)}</div> : <EmptyState title="No pending requests" />}
       </section>
 
       <section>
-        <h2 className="mb-3 font-semibold">Upcoming ({upcoming.length})</h2>
+        <h2 className="font-display mb-3 text-lg font-bold">Upcoming ({upcoming.length})</h2>
         {upcoming.length ? (
           <div className="space-y-3">
             {upcoming.map((a) => (
@@ -47,7 +47,7 @@ export default async function TherapistAppointments() {
                 </div>
                 <div className="flex flex-wrap items-center gap-2">
                   <Link href={`/session/${a.id}`} className="btn-primary btn-sm">Start session</Link>
-                  <Link href={`/therapist/patients/${a.patient_id}`} className="btn-secondary btn-sm">Patient info</Link>
+                  <Link href={`/therapist/appointments/${a.id}`} className="btn-secondary btn-sm">Details & notes</Link>
                   <form action={therapistCancel} className="flex items-center gap-2">
                     <input type="hidden" name="id" value={a.id} />
                     <input name="reason" className="input w-40 py-1.5 text-xs" placeholder="Reason" required />
@@ -64,12 +64,12 @@ export default async function TherapistAppointments() {
 
       {toClose.length > 0 && (
         <section>
-          <h2 className="mb-3 font-semibold">Mark as completed</h2>
+          <h2 className="font-display mb-3 text-lg font-bold">Mark as completed</h2>
           <p className="mb-3 text-sm text-muted">Confirm sessions that took place so they count towards your payments.</p>
           <div className="space-y-2">
             {toClose.map((a) => (
               <div key={a.id} className="card flex items-center justify-between gap-3 py-3">
-                <span className="text-sm">{a.patient?.full_name} · {formatDateTime(a.starts_at)}</span>
+                <Link href={`/therapist/appointments/${a.id}`} className="text-sm hover:underline">{a.patient?.full_name} · {formatDateTime(a.starts_at)}</Link>
                 <form action={markCompleted}>
                   <input type="hidden" name="id" value={a.id} />
                   <SubmitButton className="btn-secondary btn-sm" pendingText="…">Mark completed</SubmitButton>
@@ -81,7 +81,7 @@ export default async function TherapistAppointments() {
       )}
 
       <section>
-        <h2 className="mb-3 font-semibold">History</h2>
+        <h2 className="font-display mb-3 text-lg font-bold">History</h2>
         {history.length ? (
           <div className="card overflow-x-auto p-0">
             <table className="table">
@@ -89,7 +89,7 @@ export default async function TherapistAppointments() {
               <tbody>
                 {history.map((a) => (
                   <tr key={a.id}>
-                    <td>{formatDateTime(a.starts_at)}</td>
+                    <td><Link href={`/therapist/appointments/${a.id}`} className="font-medium text-brand-700 hover:underline">{formatDateTime(a.starts_at)}</Link></td>
                     <td>{a.patient?.full_name}</td>
                     <td className="capitalize">{a.type}</td>
                     <td><StatusBadge status={a.status} />{a.status_reason && <p className="mt-1 text-xs text-muted">{a.status_reason}</p>}</td>

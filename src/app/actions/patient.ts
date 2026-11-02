@@ -8,7 +8,7 @@ import { QUESTIONS, scoreAnswers, type Answers } from "@/lib/assessment";
 import { summariseAssessment } from "@/lib/ai";
 import { getSlots, type Slot } from "@/lib/slots";
 import { getSettings } from "@/lib/settings";
-import { sendEmail, emailLayout } from "@/lib/notify";
+import { notify, notifyAdmins } from "@/lib/notifications";
 import { formatDateTime } from "@/lib/format";
 import { PLANS, type PlanKey } from "@/lib/constants";
 import { initializeTransaction, disableSubscription } from "@/lib/paystack";
@@ -76,16 +76,13 @@ export async function submitAssessment(_: ActionState, form: FormData): Promise<
       reason: "Assessment indicates possible risk of self-harm",
       details: `Assessment ${row.id}. Please review and reach out to this patient promptly.`,
     });
-    if (process.env.ADMIN_ALERT_EMAIL) {
-      await sendEmail(
-        process.env.ADMIN_ALERT_EMAIL,
-        "Urgent: high-risk assessment flagged",
-        emailLayout("A patient's assessment was flagged", `<p>${user.fullName} submitted an assessment that indicates possible risk. Please review it in the admin dashboard.</p>`, {
-          label: "Open reports",
-          url: `${await siteUrl()}/admin/reports`,
-        })
-      );
-    }
+    await notifyAdmins({
+      kind: "alert",
+      title: "High-risk assessment flagged",
+      body: `${user.fullName}'s assessment suggests possible risk of self-harm. Please review it now.`,
+      link: "/admin/reports?source=ai",
+      email: true,
+    });
   }
   redirect(`/patient/assessment/${row.id}`);
 }
@@ -154,18 +151,13 @@ export async function bookAppointment(_: ActionState, form: FormData): Promise<A
     .from("consents")
     .upsert({ patient_id: user.id, therapist_id: therapistId, granted: shareDetails, updated_at: new Date().toISOString() });
 
-  const { data: tp } = await admin.from("profiles").select("email, full_name").eq("id", therapistId).single();
-  if (tp?.email) {
-    await sendEmail(
-      tp.email,
-      "New session request",
-      emailLayout(
-        "You have a new booking request",
-        `<p>${user.fullName} requested a ${type} session on <b>${formatDateTime(slot.startsAt)}</b>.</p><p>Please accept or decline it in your portal.</p>`,
-        { label: "Review request", url: `${await siteUrl()}/therapist/appointments` }
-      )
-    );
-  }
+  await notify(therapistId, {
+    kind: "booking",
+    title: `New session request from ${user.fullName}`,
+    body: `${type === "audio" ? "Voice" : "Video"} session on ${formatDateTime(slot.startsAt)}. Please accept or decline.`,
+    link: "/therapist/appointments",
+    email: true,
+  });
   redirect("/patient/appointments?booked=1");
 }
 
@@ -184,15 +176,18 @@ export async function cancelAppointment(form: FormData) {
     .from("appointments")
     .update({ status: "cancelled", status_reason: String(form.get("reason") ?? "") || "Cancelled by patient" })
     .eq("id", id);
-  const { data: tp } = await createAdminClient().from("profiles").select("email").eq("id", appt.therapist_id).single();
-  if (tp?.email) {
-    await sendEmail(tp.email, "Session cancelled", emailLayout("A session was cancelled", `<p>${user.fullName} cancelled the session on ${formatDateTime(appt.starts_at)}.</p>`));
-  }
+  await notify(appt.therapist_id, {
+    kind: "cancelled",
+    title: `${user.fullName} cancelled a session`,
+    body: `The session on ${formatDateTime(appt.starts_at)} was cancelled.`,
+    link: "/therapist/appointments",
+    email: true,
+  });
   revalidatePath("/patient/appointments");
 }
 
 export async function rescheduleAppointment(_: ActionState, form: FormData): Promise<ActionState> {
-  await requireRole("patient");
+  const user = await requireRole("patient");
   const id = String(form.get("id"));
   const startsAt = String(form.get("starts_at"));
   const supabase = await createClient();
@@ -212,6 +207,13 @@ export async function rescheduleAppointment(_: ActionState, form: FormData): Pro
     .update({ starts_at: slot.startsAt, ends_at: slot.endsAt, reminder_24h_sent: false, reminder_1h_sent: false })
     .eq("id", id);
   if (error) return { error: "Could not reschedule. Please try another time." };
+  await notify(appt.therapist_id, {
+    kind: "booking",
+    title: `${user.fullName} asked to move a session`,
+    body: `New time requested: ${formatDateTime(slot.startsAt)}. Please accept or decline.`,
+    link: "/therapist/appointments",
+    email: true,
+  });
   redirect("/patient/appointments?rescheduled=1");
 }
 

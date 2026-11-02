@@ -41,11 +41,11 @@ export function SlotPicker({ therapistId, ignoreAppointmentId }: { therapistId: 
               setPicked("");
               setDay(d.ymd);
             }}
-            className={`flex min-w-16 flex-col items-center rounded-xl border px-3 py-2 text-sm transition ${
-              day === d.ymd ? "border-brand-600 bg-brand-50 text-brand-800" : "border-black/10 bg-white hover:bg-black/5"
+            className={`flex min-w-[4.5rem] shrink-0 flex-col items-center whitespace-nowrap rounded-xl border px-3 py-2 text-sm transition ${
+              day === d.ymd ? "border-brand-700 bg-brand-700 text-white" : "border-line bg-white hover:border-brand-300"
             }`}
           >
-            <span className="text-xs text-muted">{d.weekday}</span>
+            <span className={`text-xs ${day === d.ymd ? "text-brand-100" : "text-muted"}`}>{d.weekday}</span>
             <span className="font-semibold">{d.label}</span>
           </button>
         ))}
@@ -62,8 +62,8 @@ export function SlotPicker({ therapistId, ignoreAppointmentId }: { therapistId: 
               type="button"
               key={s.startsAt}
               onClick={() => setPicked(s.startsAt)}
-              className={`rounded-lg border py-2 text-sm font-medium transition ${
-                picked === s.startsAt ? "border-brand-600 bg-brand-600 text-white" : "border-black/10 bg-white hover:border-brand-300"
+              className={`rounded-xl border py-2.5 text-sm font-semibold transition ${
+                picked === s.startsAt ? "border-sun-400 bg-sun-400 text-brand-950" : "border-line bg-white hover:border-brand-300"
               }`}
             >
               {s.label}

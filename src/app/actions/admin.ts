@@ -1,17 +1,10 @@
 "use server";
 import { revalidatePath } from "next/cache";
-import { headers } from "next/headers";
 import { requireRole } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/server";
-import { sendEmail, emailLayout } from "@/lib/notify";
+import { notify } from "@/lib/notifications";
 
 export type ActionState = { error?: string; message?: string } | undefined;
-
-async function siteUrl() {
-  if (process.env.NEXT_PUBLIC_SITE_URL) return process.env.NEXT_PUBLIC_SITE_URL;
-  const h = await headers();
-  return `${h.get("x-forwarded-proto") ?? "https"}://${h.get("host")}`;
-}
 
 export async function reviewTherapist(form: FormData) {
   await requireRole("admin");
@@ -25,14 +18,12 @@ export async function reviewTherapist(form: FormData) {
     .update({ status, rejection_reason: status === "approved" ? null : reason, approved_at: status === "approved" ? new Date().toISOString() : null })
     .eq("id", id);
 
-  const { data: p } = await admin.from("profiles").select("email, full_name").eq("id", id).single();
-  if (p?.email) {
-    const site = await siteUrl();
-    if (status === "approved") {
-      await sendEmail(p.email, "Your therapist account is approved", emailLayout("Welcome aboard!", "<p>Your licence has been verified. Patients can now find and book you. Make sure your working hours are up to date.</p>", { label: "Open your portal", url: `${site}/therapist` }));
-    } else if (status === "rejected") {
-      await sendEmail(p.email, "Update on your application", emailLayout("Your application needs attention", `<p>We couldn't verify your application${reason ? `: ${reason}` : "."}</p><p>Please update your documents and upload your licence again.</p>`, { label: "Update documents", url: `${site}/therapist/documents` }));
-    }
+  if (status === "approved") {
+    await notify(id, { kind: "approved", title: "Your account is verified", body: "Patients can now find and book you. Check that your working hours are up to date.", link: "/therapist/availability", email: true });
+  } else if (status === "rejected") {
+    await notify(id, { kind: "alert", title: "Your application needs attention", body: `We couldn't verify your application${reason ? `: ${reason}` : "."} Please update your documents and upload your licence again.`, link: "/therapist/documents", email: true });
+  } else if (status === "suspended") {
+    await notify(id, { kind: "alert", title: "Your account has been suspended", body: reason ?? "Please contact the admin team.", email: true });
   }
   revalidatePath("/admin", "layout");
 }

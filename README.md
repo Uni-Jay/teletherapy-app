@@ -6,7 +6,9 @@ A web application that connects patients with verified therapists for video and 
 - **Therapists** apply with their licence and qualifications, set their availability, accept or decline bookings, run sessions, see patient details (only with patient consent) and track their earnings.
 - **Admins** verify therapists, manage users, handle reports and high-risk flags, track revenue and payouts, and see the 10 key metrics on the dashboard.
 
-Built with Next.js 16, Supabase (database, login, file storage, realtime chat), Paystack (subscriptions), Jitsi (video/audio), Claude (assessment summaries), Resend (email) and Termii (SMS).
+Built with Next.js 16, Supabase (database, login, file storage, realtime), Paystack (subscriptions), built-in WebRTC video and voice calls, Claude (assessment summaries), Resend (email) and Termii (SMS).
+
+Also included: in-app notifications, ratings and reviews, private therapist session notes, account settings, calendar views, and calling straight from chat.
 
 ---
 
@@ -60,14 +62,19 @@ Set `ADMIN_ALERT_EMAIL` to get an email whenever an assessment is flagged as hig
 
 Supabase also sends its own sign-up emails. For a branded sender, add your Resend SMTP details under **Supabase → Project Settings → Authentication → SMTP Settings**.
 
-## 5. Video and audio calls (Jitsi)
+## 5. Video and voice calls
 
-Sessions use Jitsi inside the app. `NEXT_PUBLIC_JITSI_DOMAIN` controls which Jitsi server is used.
+Calls are built in, like WhatsApp. They connect directly between the patient's and therapist's devices (WebRTC), with mute, camera on/off, camera flip, full screen, ringing, missed-call alerts and automatic reconnection.
 
-- `meet.jit.si` (the default) works for testing, but the public server may ask the first person in the room to sign in, and it isn't meant for production use.
-- **For launch**, either self-host Jitsi on a small server (free, open source) and set your own domain, or use **8x8 Jitsi as a Service**.
+- **Session calls:** the room opens 15 minutes before a confirmed session. The first person to join rings the other.
+- **Calls from chat:** patients and therapists who have a booking together can start a voice or video call from their conversation.
 
-The room opens 15 minutes before each confirmed session and closes 30 minutes after it ends.
+Most connections work without extra setup. Some mobile networks block direct connections, so for launch add a **TURN server** that relays those calls:
+
+- Run the free, open-source **coturn** on a small server, or use a hosted TURN service (Metered, Twilio, Cloudflare and others offer one).
+- Put its details in `TURN_URLS`, `TURN_USERNAME` and `TURN_CREDENTIAL`.
+
+Calls need HTTPS (or `localhost`) because browsers only allow camera and microphone on secure pages.
 
 ## 6. Appointment reminders
 
@@ -92,7 +99,7 @@ After deploying, set `NEXT_PUBLIC_SITE_URL` to your live address and update the 
 - [ ] Replace the placeholder text on `/privacy` and `/terms` with your real privacy policy and terms of use.
 - [ ] In **Admin → Settings**, add your Telegram link and the crisis helpline numbers to show patients.
 - [ ] Switch Paystack to live keys and live plan codes.
-- [ ] Set up production Jitsi (section 5).
+- [ ] Add a TURN server for calls (section 5).
 - [ ] Test a full journey: patient sign-up → assessment → therapist application → admin approval → booking → session → payment.
 
 ## Project structure

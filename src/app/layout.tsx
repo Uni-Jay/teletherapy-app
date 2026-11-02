@@ -1,11 +1,15 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
+import "@fontsource-variable/plus-jakarta-sans";
+import "@fontsource-variable/bricolage-grotesque";
 import "./globals.css";
 import { APP_NAME } from "@/lib/constants";
 
 export const metadata: Metadata = {
-  title: { default: `${APP_NAME} – Online therapy`, template: `%s · ${APP_NAME}` },
-  description: "Connect with verified therapists for private video and audio sessions.",
+  title: { default: `${APP_NAME} – Talk to a licensed therapist online`, template: `%s · ${APP_NAME}` },
+  description: "Private video and voice sessions with verified therapists, from anywhere in Nigeria.",
 };
+
+export const viewport: Viewport = { themeColor: "#195850" };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (

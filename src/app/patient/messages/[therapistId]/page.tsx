@@ -9,8 +9,9 @@ export default async function PatientChat({ params }: { params: Promise<{ therap
   const { therapistId } = await params;
   const user = await requireRole("patient");
   const supabase = await createClient();
-  const [{ data: t }, { data: msgs }] = await Promise.all([
+  const [{ data: t }, { data: tp }, { data: msgs }] = await Promise.all([
     supabase.from("profiles").select("full_name").eq("id", therapistId).single(),
+    supabase.from("therapist_profiles").select("photo_url, title").eq("id", therapistId).maybeSingle(),
     supabase
       .from("messages")
       .select("id, sender_id, body, created_at")
@@ -23,7 +24,7 @@ export default async function PatientChat({ params }: { params: Promise<{ therap
     <div className="max-w-3xl">
       <Link href="/patient/messages" className="text-sm text-brand-700">← Messages</Link>
       <div className="mt-4">
-        <Chat patientId={user.id} therapistId={therapistId} meId={user.id} otherName={t?.full_name ?? "Therapist"} initial={msgs ?? []} />
+        <Chat patientId={user.id} therapistId={therapistId} meId={user.id} otherName={t?.full_name ?? "Therapist"} otherPhoto={tp?.photo_url ?? null} otherSubtitle={tp?.title ?? "Therapist"} initial={msgs ?? []} />
       </div>
     </div>
   );

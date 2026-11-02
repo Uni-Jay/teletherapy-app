@@ -46,13 +46,13 @@ export default function PatientRegister() {
 
   return (
     <AuthCard wide title="Create your account" text="Your answers are private and help us match you with the right therapist.">
-      <ol className="mb-6 flex gap-2 text-xs">
+      <ol className="mb-8 grid grid-cols-4 gap-2">
         {STEPS.map((s, i) => (
-          <li
-            key={s}
-            className={`flex-1 rounded-full py-1.5 text-center font-medium ${i <= step ? "bg-brand-600 text-white" : "bg-black/5 text-muted"}`}
-          >
-            {s}
+          <li key={s} className="min-w-0">
+            <div className={`h-1.5 rounded-full transition-colors ${i <= step ? "bg-brand-600" : "bg-line"}`} />
+            <p className={`mt-2 truncate text-xs font-semibold ${i === step ? "text-ink" : "text-muted"}`}>
+              <span className="tabular-nums">{i + 1}.</span> {s}
+            </p>
           </li>
         ))}
       </ol>
@@ -117,7 +117,7 @@ export default function PatientRegister() {
               max={10}
               value={mood}
               onChange={(e) => setMood(Number(e.target.value))}
-              className="w-full accent-brand-600"
+              className="w-full accent-brand-600 h-2"
             />
             <div className="flex justify-between text-xs text-muted">
               <span>Very low</span>

@@ -17,7 +17,7 @@ export default async function TherapistChat({ params }: { params: Promise<{ pati
     <div className="max-w-3xl">
       <Link href="/therapist/messages" className="text-sm text-brand-700">← Messages</Link>
       <div className="mt-4">
-        <Chat patientId={patientId} therapistId={user.id} meId={user.id} otherName={p?.full_name ?? "Patient"} initial={msgs ?? []} />
+        <Chat patientId={patientId} therapistId={user.id} meId={user.id} otherName={p?.full_name ?? "Patient"} otherSubtitle="Your patient" initial={msgs ?? []} />
       </div>
     </div>
   );

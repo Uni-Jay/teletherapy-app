@@ -3,6 +3,7 @@ import { requireRole } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/server";
 import { naira, nowMs } from "@/lib/format";
 import { PageHeader, StatCard } from "@/components/ui/misc";
+import { Activity, BadgeCheck, Banknote, CalendarDays, CalendarX, CircleCheck, ClipboardCheck, CreditCard, Flag, HeartPulse, Hourglass, Send, ShieldAlert, Users, Wallet } from "lucide-react";
 
 export const metadata = { title: "Admin dashboard" };
 
@@ -49,9 +50,9 @@ export default async function AdminDashboard({ searchParams }: { searchParams: P
         title="Dashboard"
         text={RANGES[range]}
         action={
-          <div className="flex gap-1 rounded-lg bg-white p-1 shadow-sm">
+          <div className="flex flex-wrap gap-1 rounded-xl border border-line bg-white p-1">
             {Object.entries(RANGES).map(([k, label]) => (
-              <Link key={k} href={`/admin?range=${k}`} className={`rounded-md px-3 py-1.5 text-xs font-medium ${k === range ? "bg-brand-600 text-white" : "text-muted hover:bg-black/5"}`}>
+              <Link key={k} href={`/admin?range=${k}`} className={`rounded-lg px-3 py-1.5 text-xs font-semibold ${k === range ? "bg-brand-700 text-white" : "text-muted hover:bg-mist"}`}>
                 {label}
               </Link>
             ))}
@@ -60,47 +61,47 @@ export default async function AdminDashboard({ searchParams }: { searchParams: P
       />
 
       <section>
-        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted">Users and therapists</h2>
+        <h2 className="eyebrow mb-3">Users and therapists</h2>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <StatCard label="1 · Registered users" value={users.count ?? 0} sub={`${newUsers.count ?? 0} new in period`} href="/admin/users" />
-          <StatCard label="2 · Verified therapists" value={verified.count ?? 0} href="/admin/therapists?status=approved" />
-          <StatCard label="3 · Pending applications" value={pending.count ?? 0} href="/admin/therapists?status=pending" />
-          <StatCard label="Active subscriptions" value={activeSubs.count ?? 0} href="/admin/payments" />
+          <StatCard label="1 · Registered users" icon={Users} value={users.count ?? 0} sub={`${newUsers.count ?? 0} new in period`} href="/admin/users" />
+          <StatCard label="2 · Verified therapists" icon={BadgeCheck} value={verified.count ?? 0} href="/admin/therapists?status=approved" />
+          <StatCard label="3 · Pending applications" icon={Hourglass} tone="sun" value={pending.count ?? 0} href="/admin/therapists?status=pending" />
+          <StatCard label="Active subscriptions" icon={CreditCard} tone="sky" value={activeSubs.count ?? 0} href="/admin/payments" />
         </div>
       </section>
 
       <section>
-        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted">Sessions</h2>
+        <h2 className="eyebrow mb-3">Sessions</h2>
         <div className="grid gap-4 sm:grid-cols-3">
-          <StatCard label="4 · Appointment bookings" value={bookings.count ?? 0} sub="Booked in period" href="/admin/appointments" />
-          <StatCard label="5 · Completed sessions" value={completed.count ?? 0} href="/admin/appointments?status=completed" />
-          <StatCard label="6 · Cancelled appointments" value={cancelled.count ?? 0} href="/admin/appointments?status=cancelled" />
+          <StatCard label="4 · Appointment bookings" icon={CalendarDays} value={bookings.count ?? 0} sub="Booked in period" href="/admin/appointments" />
+          <StatCard label="5 · Completed sessions" icon={CircleCheck} value={completed.count ?? 0} href="/admin/appointments?status=completed" />
+          <StatCard label="6 · Cancelled appointments" icon={CalendarX} tone="red" value={cancelled.count ?? 0} href="/admin/appointments?status=cancelled" />
         </div>
       </section>
 
       <section>
-        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted">Money</h2>
+        <h2 className="eyebrow mb-3">Money</h2>
         <div className="grid gap-4 sm:grid-cols-2">
-          <StatCard label="7 · Revenue" value={naira(revenue)} sub={`${payments.data?.length ?? 0} successful payments`} href="/admin/payments" />
-          <StatCard label="Owed to therapists" value={naira(owed)} sub="Completed sessions not yet paid out" href="/admin/payments" />
+          <StatCard label="7 · Revenue" icon={Banknote} tone="sky" value={naira(revenue)} sub={`${payments.data?.length ?? 0} successful payments`} href="/admin/payments" />
+          <StatCard label="Owed to therapists" icon={Wallet} tone="sun" value={naira(owed)} sub="Completed sessions not yet paid out" href="/admin/payments" />
         </div>
       </section>
 
       <section>
-        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted">Engagement and community</h2>
+        <h2 className="eyebrow mb-3">Engagement and community</h2>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <StatCard label="8 · Active users" value={active} sub={`${logins.count ?? 0} sign-ins`} />
-          <StatCard label="Assessments taken" value={assessments.count ?? 0} />
-          <StatCard label="Mood check-ins" value={checkins.count ?? 0} />
-          <StatCard label="9 · Telegram clicks" value={telegram.count ?? 0} sub="Visits to the community channel" href="/admin/settings" />
+          <StatCard label="8 · Active users" icon={Activity} tone="violet" value={active} sub={`${logins.count ?? 0} sign-ins`} />
+          <StatCard label="Assessments taken" icon={ClipboardCheck} value={assessments.count ?? 0} />
+          <StatCard label="Mood check-ins" icon={HeartPulse} value={checkins.count ?? 0} />
+          <StatCard label="9 · Telegram clicks" icon={Send} tone="sky" value={telegram.count ?? 0} sub="Visits to the community channel" href="/admin/settings" />
         </div>
       </section>
 
       <section>
-        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted">Safety</h2>
+        <h2 className="eyebrow mb-3">Safety</h2>
         <div className="grid gap-4 sm:grid-cols-2">
-          <StatCard label="10 · Open reports" value={openReports.count ?? 0} href="/admin/reports" />
-          <StatCard label="High-risk assessments" value={aiFlags.count ?? 0} sub="Flagged automatically, not yet resolved" href="/admin/reports?source=ai" />
+          <StatCard label="10 · Open reports" icon={Flag} tone="sun" value={openReports.count ?? 0} href="/admin/reports" />
+          <StatCard label="High-risk assessments" icon={ShieldAlert} tone="red" value={aiFlags.count ?? 0} sub="Flagged automatically, not yet resolved" href="/admin/reports?source=ai" />
         </div>
       </section>
     </div>

@@ -56,6 +56,13 @@ export async function GET(request: NextRequest) {
           );
         }
         await sendSms(person.phone, `Reminder: your ${a.type} session is ${w.label}, ${when}. Join at ${link}`);
+        await admin.from("notifications").insert({
+          user_id: person.id,
+          kind: "reminder",
+          title: `Session ${w.label}: ${when}`,
+          body: `With ${other?.full_name ?? "your " + (person === patient ? "therapist" : "patient")}. The room opens 15 minutes before.`,
+          link: `/session/${a.id}`,
+        });
       }
       await admin.from("appointments").update({ [w.flag]: true, ...(w.flag === "reminder_1h_sent" ? { reminder_24h_sent: true } : {}) }).eq("id", a.id);
       sent++;

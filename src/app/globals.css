@@ -1,63 +1,118 @@
 @import "tailwindcss";
 
+/* Calm pine-teal brand with a warm apricot accent. Display face for headings, humanist sans for reading. */
 @theme {
-  --color-brand-50: #eef8f6;
-  --color-brand-100: #d5eee9;
-  --color-brand-200: #aedcd3;
-  --color-brand-300: #7ec3b7;
-  --color-brand-400: #4fa597;
-  --color-brand-500: #33897c;
-  --color-brand-600: #276e64;
-  --color-brand-700: #225952;
-  --color-brand-800: #1e4843;
-  --color-brand-900: #1b3c38;
-  --color-sand-50: #fbf9f6;
-  --color-sand-100: #f4efe7;
-  --color-ink: #1d2a2a;
-  --color-muted: #5f6f6d;
-  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --color-brand-50: #eef7f5;
+  --color-brand-100: #d7ede8;
+  --color-brand-200: #b0dbd1;
+  --color-brand-300: #7fc2b3;
+  --color-brand-400: #4ea392;
+  --color-brand-500: #2f8777;
+  --color-brand-600: #1f6d61;
+  --color-brand-700: #195850;
+  --color-brand-800: #164842;
+  --color-brand-900: #123b37;
+  --color-brand-950: #0a2421;
+  --color-sun-50: #fff6ec;
+  --color-sun-100: #fdebd9;
+  --color-sun-300: #f7c08d;
+  --color-sun-400: #f4a259;
+  --color-sun-500: #e8873a;
+  --color-sun-700: #9a4f12;
+  --color-mist: #f4f7f6;
+  --color-ink: #13211f;
+  --color-muted: #5b6b68;
+  --color-line: #e3eae8;
+  --font-sans: "Plus Jakarta Sans Variable", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-display: "Bricolage Grotesque Variable", "Plus Jakarta Sans Variable", ui-sans-serif, system-ui, sans-serif;
+  --shadow-soft: 0 1px 2px rgb(16 40 37 / 0.04), 0 8px 24px -12px rgb(16 40 37 / 0.12);
+  --shadow-lift: 0 2px 4px rgb(16 40 37 / 0.05), 0 18px 40px -18px rgb(16 40 37 / 0.28);
+  --animate-ring: ring 1.8s ease-out infinite;
+  --animate-fade-up: fade-up 0.5s ease-out both;
+  @keyframes ring {
+    0% { transform: scale(0.9); opacity: 0.7; }
+    100% { transform: scale(1.6); opacity: 0; }
+  }
+  @keyframes fade-up {
+    from { opacity: 0.001; transform: translateY(8px); }
+    to { opacity: 1; transform: none; }
+  }
 }
 
+html {
+  -webkit-tap-highlight-color: transparent;
+}
 body {
-  background: var(--color-sand-50);
+  background: var(--color-mist);
   color: var(--color-ink);
+  font-feature-settings: "ss01";
+}
+h1, h2, h3 {
+  text-wrap: balance;
+}
+::selection {
+  background: var(--color-brand-200);
+}
+:focus-visible {
+  outline: 2px solid var(--color-brand-500);
+  outline-offset: 2px;
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
 
+@utility font-display {
+  font-family: var(--font-display);
+  letter-spacing: -0.02em;
+}
 @utility btn {
-  @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-60;
+  @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition duration-150 select-none disabled:cursor-not-allowed disabled:opacity-60 active:scale-[0.98];
 }
 @utility btn-primary {
-  @apply btn bg-brand-600 text-white hover:bg-brand-700;
+  @apply btn bg-brand-700 text-white shadow-sm hover:bg-brand-800;
+}
+@utility btn-accent {
+  @apply btn bg-sun-400 text-brand-950 shadow-sm hover:bg-sun-500;
 }
 @utility btn-secondary {
-  @apply btn border border-brand-200 bg-white text-brand-800 hover:bg-brand-50;
+  @apply btn border border-line bg-white text-ink hover:border-brand-300 hover:bg-brand-50;
+}
+@utility btn-ghost {
+  @apply btn text-muted hover:bg-black/5 hover:text-ink;
 }
 @utility btn-danger {
   @apply btn border border-red-200 bg-white text-red-700 hover:bg-red-50;
 }
 @utility btn-sm {
-  @apply px-3 py-1.5 text-xs;
+  @apply rounded-lg px-3 py-1.5 text-xs;
 }
 @utility card {
-  @apply rounded-2xl border border-black/5 bg-white p-5 shadow-sm;
+  @apply rounded-2xl border border-line bg-white p-5 shadow-[var(--shadow-soft)];
 }
 @utility label {
-  @apply mb-1.5 block text-sm font-medium text-ink;
+  @apply mb-1.5 block text-sm font-semibold text-ink;
 }
 @utility input {
-  @apply w-full rounded-lg border border-black/15 bg-white px-3 py-2.5 text-sm outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-100;
+  @apply w-full rounded-xl border border-line bg-white px-3.5 py-2.5 text-sm outline-none transition placeholder:text-muted/70 focus:border-brand-400 focus:ring-4 focus:ring-brand-100;
 }
 @utility hint {
   @apply mt-1 text-xs text-muted;
 }
 @utility chip {
-  @apply inline-flex cursor-pointer select-none items-center rounded-full border border-black/15 bg-white px-3 py-1.5 text-sm transition has-[:checked]:border-brand-600 has-[:checked]:bg-brand-50 has-[:checked]:text-brand-800;
+  @apply inline-flex cursor-pointer select-none items-center gap-1.5 rounded-full border border-line bg-white px-3.5 py-1.5 text-sm font-medium text-ink transition hover:border-brand-300 has-[:checked]:border-brand-600 has-[:checked]:bg-brand-700 has-[:checked]:text-white has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-brand-300;
 }
 @utility badge {
-  @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium;
+  @apply inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold;
 }
 @utility page-title {
-  @apply text-2xl font-bold tracking-tight text-ink;
+  @apply font-display text-[1.75rem] font-bold leading-tight text-ink;
+}
+@utility eyebrow {
+  @apply text-[11px] font-bold uppercase tracking-[0.12em] text-muted;
 }
 
 @layer components {
@@ -65,9 +120,15 @@ body {
     @apply w-full text-left text-sm;
   }
   .table th {
-    @apply border-b border-black/10 px-3 py-2 text-xs font-semibold uppercase tracking-wide text-muted;
+    @apply border-b border-line bg-mist/60 px-4 py-2.5 text-[11px] font-bold uppercase tracking-[0.1em] text-muted;
   }
   .table td {
-    @apply border-b border-black/5 px-3 py-3 align-top;
+    @apply border-b border-line/70 px-4 py-3.5 align-top;
+  }
+  .table tbody tr:last-child td {
+    @apply border-b-0;
+  }
+  .table tbody tr {
+    @apply transition-colors hover:bg-brand-50/40;
   }
 }
