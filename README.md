@@ -1,36 +1,108 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# MindBridge – online therapy web app
 
-## Getting Started
+A web application that connects patients with verified therapists for video and audio sessions.
 
-First, run the development server:
+- **Patients** register with their details, take an AI-assisted wellbeing assessment, book, reschedule and cancel sessions, join video or audio calls, message their therapist securely, track their mood and progress, and pay for a monthly plan.
+- **Therapists** apply with their licence and qualifications, set their availability, accept or decline bookings, run sessions, see patient details (only with patient consent) and track their earnings.
+- **Admins** verify therapists, manage users, handle reports and high-risk flags, track revenue and payouts, and see the 10 key metrics on the dashboard.
+
+Built with Next.js 16, Supabase (database, login, file storage, realtime chat), Paystack (subscriptions), Jitsi (video/audio), Claude (assessment summaries), Resend (email) and Termii (SMS).
+
+---
+
+## 1. Run it on your computer
+
+You need [Node.js 20+](https://nodejs.org).
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+cp .env.example .env.local   # then fill in the values (see below)
+npm run dev                  # open http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 2. Set up Supabase (database and logins)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1. Create a free project at [supabase.com](https://supabase.com).
+2. Open **SQL Editor → New query**, paste everything from `supabase/schema.sql` and click **Run**. This creates all tables, security rules and file storage.
+3. Go to **Project Settings → API** and copy into `.env.local`:
+   - `NEXT_PUBLIC_SUPABASE_URL` – Project URL
+   - `NEXT_PUBLIC_SUPABASE_ANON_KEY` – `anon` public key
+   - `SUPABASE_SERVICE_ROLE_KEY` – `service_role` secret key (never share this)
+4. Go to **Authentication → URL Configuration** and set **Site URL** to your live domain (for example `https://www.yourdomain.com`). Add `http://localhost:3000/**` and `https://www.yourdomain.com/**` under **Redirect URLs**.
+5. *(Recommended)* Go to **Authentication → Email Templates** and, in the *Confirm signup* and *Reset password* templates, change the link's `href` to:
+   ```
+   {{ .RedirectTo }}&token_hash={{ .TokenHash }}&type={{ .Type }}
+   ```
+   This lets the links open on any device. The default links also work, as long as people open them in the same browser they signed up in.
+6. **Make yourself an admin.** Sign up on the site like a normal patient, then run this in the SQL Editor:
+   ```sql
+   update profiles set role = 'admin' where email = 'you@example.com';
+   ```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 3. Set up Paystack (subscriptions)
 
-## Learn More
+1. In the Paystack dashboard, create four **monthly plans** under **Products → Plans**: Basic ₦10,000, Standard ₦20,000, Premium ₦30,000 and Family ₦50,000.
+2. Put each plan code (`PLN_…`) into `PAYSTACK_PLAN_BASIC`, `PAYSTACK_PLAN_STANDARD`, `PAYSTACK_PLAN_PREMIUM` and `PAYSTACK_PLAN_FAMILY`.
+3. Copy your secret key into `PAYSTACK_SECRET_KEY` (use the test key `sk_test_…` until you go live).
+4. Under **Settings → API Keys & Webhooks**, set the webhook URL to `https://YOUR-DOMAIN/api/paystack/webhook`.
 
-To learn more about Next.js, take a look at the following resources:
+While testing, you can set `REQUIRE_SUBSCRIPTION_TO_BOOK=false` so patients can book without paying.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 4. Optional services
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+| Service | What it does | Variables | If left empty |
+| --- | --- | --- | --- |
+| [Anthropic](https://console.anthropic.com) | Writes the assessment summary and recommends specialties | `ANTHROPIC_API_KEY` | A built-in summary is used instead |
+| [Resend](https://resend.com) | Sign-up, booking and reminder emails | `RESEND_API_KEY`, `EMAIL_FROM` | Emails are skipped (logged only) |
+| [Termii](https://termii.com) | SMS reminders | `TERMII_API_KEY`, `TERMII_SENDER_ID` | SMS is skipped |
 
-## Deploy on Vercel
+Set `ADMIN_ALERT_EMAIL` to get an email whenever an assessment is flagged as high-risk.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Supabase also sends its own sign-up emails. For a branded sender, add your Resend SMTP details under **Supabase → Project Settings → Authentication → SMTP Settings**.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 5. Video and audio calls (Jitsi)
+
+Sessions use Jitsi inside the app. `NEXT_PUBLIC_JITSI_DOMAIN` controls which Jitsi server is used.
+
+- `meet.jit.si` (the default) works for testing, but the public server may ask the first person in the room to sign in, and it isn't meant for production use.
+- **For launch**, either self-host Jitsi on a small server (free, open source) and set your own domain, or use **8x8 Jitsi as a Service**.
+
+The room opens 15 minutes before each confirmed session and closes 30 minutes after it ends.
+
+## 6. Appointment reminders
+
+`/api/cron/reminders` sends email and SMS reminders 24 hours and 1 hour before each confirmed session. It must be called every 15 minutes.
+
+1. Set `CRON_SECRET` to a long random string.
+2. **On Vercel Pro**, `vercel.json` already schedules it, and Vercel sends the secret automatically.
+3. **On any other host**, create a free job at [cron-job.org](https://cron-job.org) that calls
+   `https://YOUR-DOMAIN/api/cron/reminders?secret=YOUR_CRON_SECRET` every 15 minutes.
+
+## 7. Deploy
+
+The app needs a host that runs Node.js (a Next.js server), not plain static hosting.
+
+- **Your existing hosting:** if it supports Node.js apps (cPanel "Setup Node.js App", a VPS, Render, Railway and similar), run `npm run build` then `npm start`, and add all the variables from `.env.example`.
+- **Vercel:** import the GitHub repo, add the environment variables, then point your domain's DNS to Vercel.
+
+After deploying, set `NEXT_PUBLIC_SITE_URL` to your live address and update the Supabase and Paystack URLs above.
+
+## 8. Before going live
+
+- [ ] Replace the placeholder text on `/privacy` and `/terms` with your real privacy policy and terms of use.
+- [ ] In **Admin → Settings**, add your Telegram link and the crisis helpline numbers to show patients.
+- [ ] Switch Paystack to live keys and live plan codes.
+- [ ] Set up production Jitsi (section 5).
+- [ ] Test a full journey: patient sign-up → assessment → therapist application → admin approval → booking → session → payment.
+
+## Project structure
+
+```
+supabase/schema.sql          Database tables, security rules and storage
+src/app/                     Pages (patient/, therapist/, admin/, session/, api/)
+src/app/actions/             Server actions for each role
+src/lib/                     Supabase clients, auth, AI, Paystack, email/SMS, booking slots
+src/components/              Shared UI
+```
+
+The platform name comes from `NEXT_PUBLIC_APP_NAME`.
