@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { sendMessage, markRead } from "@/app/actions/messages";
 import { startCall } from "@/app/actions/calls";
-import { Phone, Send, ShieldCheck, Video } from "lucide-react";
+import { Lock, Phone, Send, ShieldCheck, Video } from "lucide-react";
 import { Avatar } from "./avatar";
 
 type Msg = { id: string; sender_id: string; body: string; created_at: string };
@@ -16,6 +16,10 @@ export function Chat({
   otherPhoto = null,
   otherSubtitle,
   initial,
+  canMessage = true,
+  canCall = true,
+  lockedNote,
+  callLocked = false,
 }: {
   patientId: string;
   therapistId: string;
@@ -24,6 +28,12 @@ export function Chat({
   otherPhoto?: string | null;
   otherSubtitle?: string;
   initial: Msg[];
+  /** False when the patient's plan doesn't include messaging. */
+  canMessage?: boolean;
+  /** False when the patient's plan doesn't include calls outside sessions. */
+  canCall?: boolean;
+  lockedNote?: string;
+  callLocked?: boolean;
 }) {
   const otherId = meId === patientId ? therapistId : patientId;
   const [messages, setMessages] = useState<Msg[]>(initial);
@@ -82,7 +92,7 @@ export function Chat({
             <ShieldCheck className="size-3 text-brand-600" /> {otherSubtitle ?? "Private conversation"}
           </p>
         </div>
-        <form action={startCall}>
+        {canCall && (<><form action={startCall}>
           <input type="hidden" name="other_id" value={otherId} />
           <input type="hidden" name="type" value="audio" />
           <button className="rounded-xl p-2.5 text-brand-700 transition hover:bg-brand-50" aria-label={`Voice call ${otherName}`} title="Voice call">
@@ -95,9 +105,15 @@ export function Chat({
           <button className="rounded-xl p-2.5 text-brand-700 transition hover:bg-brand-50" aria-label={`Video call ${otherName}`} title="Video call">
             <Video className="size-5" />
           </button>
-        </form>
+        </form></>)}
       </div>
-      <div className="flex-1 space-y-2 overflow-y-auto bg-[linear-gradient(180deg,var(--color-mist),#fff)] px-4 py-5 sm:px-6">
+      {(callLocked || !canCall) && (
+        <div className="flex items-center gap-2 border-b border-line bg-sun-50 px-5 py-2 text-xs text-sun-700">
+          <Lock className="size-3.5 shrink-0" />
+          Calls outside booked sessions are included in the Premium and Family plans. Booked sessions can always be joined.
+        </div>
+      )}
+      <div className="flex-1 space-y-2 overflow-y-auto bg-[linear-gradient(180deg,var(--color-mist),var(--color-surface))] px-4 py-5 sm:px-6">
         {messages.length === 0 && (
           <div className="mx-auto mt-10 max-w-xs text-center text-sm text-muted">
             <p className="font-semibold text-ink">Start the conversation</p>
@@ -108,7 +124,7 @@ export function Chat({
           const mine = m.sender_id === meId;
           return (
             <div key={m.id} className={`flex ${mine ? "justify-end" : "justify-start"}`}>
-              <div className={`max-w-[78%] rounded-2xl px-4 py-2.5 text-sm shadow-sm ${mine ? "rounded-br-md bg-brand-700 text-white" : "rounded-bl-md bg-white ring-1 ring-line"}`}>
+              <div className={`max-w-[78%] rounded-2xl px-4 py-2.5 text-sm shadow-sm ${mine ? "rounded-br-md bg-primary text-white" : "rounded-bl-md bg-surface ring-1 ring-line"}`}>
                 <p className="whitespace-pre-wrap leading-relaxed">{m.body}</p>
                 <p className={`mt-1 text-right text-[10px] ${mine ? "text-brand-100" : "text-muted"}`}>{time(m.created_at)}</p>
               </div>
@@ -117,22 +133,29 @@ export function Chat({
         })}
         <div ref={bottom} />
       </div>
-      <form onSubmit={onSend} className="flex items-end gap-2 border-t border-line bg-white p-3">
-        <textarea
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" && !e.shiftKey) onSend(e);
-          }}
-          rows={1}
-          className="input max-h-32 resize-none"
-          placeholder="Write a message…"
-          aria-label="Message"
-        />
-        <button className="btn-primary size-11 shrink-0 !p-0" disabled={sending || !text.trim()} aria-label="Send">
-          <Send className="size-4" />
-        </button>
-      </form>
+      {canMessage ? (
+        <form onSubmit={onSend} className="flex items-end gap-2 border-t border-line bg-surface p-3">
+          <textarea
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.shiftKey) onSend(e);
+            }}
+            rows={1}
+            className="input max-h-32 resize-none"
+            placeholder="Write a message…"
+            aria-label="Message"
+          />
+          <button className="btn-primary size-11 shrink-0 !p-0" disabled={sending || !text.trim()} aria-label="Send">
+            <Send className="size-4" />
+          </button>
+        </form>
+      ) : (
+        <div className="flex flex-wrap items-center justify-between gap-3 border-t border-line bg-surface px-5 py-4">
+          <p className="flex items-center gap-2 text-sm text-muted"><Lock className="size-4 shrink-0 text-sun-500" /> {lockedNote ?? "Messaging isn't included in this plan."}</p>
+          {meId === patientId && <a href="/patient/subscription" className="btn-accent btn-sm">Upgrade plan</a>}
+        </div>
+      )}
       {error && <p className="px-5 pb-3 text-sm text-red-700">{error}</p>}
     </div>
   );

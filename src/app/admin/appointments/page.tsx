@@ -25,7 +25,7 @@ export default async function AdminAppointments({ searchParams }: { searchParams
       <PageHeader title="Appointments" />
       <div className="mb-4 flex flex-wrap gap-2">
         {STATUSES.map((t) => (
-          <Link key={t} href={`/admin/appointments?status=${t}`} className={`rounded-full px-4 py-1.5 text-sm font-medium capitalize ${t === status ? "bg-brand-600 text-white" : "bg-white text-muted shadow-sm"}`}>{t}</Link>
+          <Link key={t} href={`/admin/appointments?status=${t}`} className={`rounded-full px-4 py-1.5 text-sm font-medium capitalize ${t === status ? "bg-brand-600 text-white" : "bg-surface text-muted shadow-sm"}`}>{t}</Link>
         ))}
       </div>
       <div className="card overflow-x-auto p-0">

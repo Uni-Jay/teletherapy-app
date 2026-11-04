@@ -1,32 +1,37 @@
 @import "tailwindcss";
 
-/* Calm pine-teal brand with a warm apricot accent. Display face for headings, humanist sans for reading. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* MindGuide AI: teal → indigo → magenta, taken from the logo. Lexend for headings (matches the wordmark), Plus Jakarta Sans for reading. */
 @theme {
-  --color-brand-50: #eef7f5;
-  --color-brand-100: #d7ede8;
-  --color-brand-200: #b0dbd1;
-  --color-brand-300: #7fc2b3;
-  --color-brand-400: #4ea392;
-  --color-brand-500: #2f8777;
-  --color-brand-600: #1f6d61;
-  --color-brand-700: #195850;
-  --color-brand-800: #164842;
-  --color-brand-900: #123b37;
-  --color-brand-950: #0a2421;
-  --color-sun-50: #fff6ec;
-  --color-sun-100: #fdebd9;
-  --color-sun-300: #f7c08d;
-  --color-sun-400: #f4a259;
-  --color-sun-500: #e8873a;
-  --color-sun-700: #9a4f12;
-  --color-mist: #f4f7f6;
-  --color-ink: #13211f;
-  --color-muted: #5b6b68;
-  --color-line: #e3eae8;
+  --color-brand-50: #ecfaf8;
+  --color-brand-100: #d0f2ee;
+  --color-brand-200: #a1e3dc;
+  --color-brand-300: #63cdc3;
+  --color-brand-400: #23b3a7;
+  --color-brand-500: #0f9a8f;
+  --color-brand-600: #0b8279;
+  --color-brand-700: #3b33a6;
+  --color-brand-800: #2e2888;
+  --color-brand-900: #201b62;
+  --color-brand-950: #130f38;
+  --color-sun-50: #fdf2fb;
+  --color-sun-100: #f8dff3;
+  --color-sun-300: #e7a3da;
+  --color-sun-400: #c026a8;
+  --color-sun-500: #a41d8f;
+  --color-sun-700: #7f1570;
+  --color-mist: #f5f6fb;
+  --color-surface: #ffffff;
+  --color-primary: #3b33a6;
+  --color-primary-hover: #2e2888;
+  --color-ink: #16152b;
+  --color-muted: #5f6178;
+  --color-line: #e5e6f0;
   --font-sans: "Plus Jakarta Sans Variable", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  --font-display: "Bricolage Grotesque Variable", "Plus Jakarta Sans Variable", ui-sans-serif, system-ui, sans-serif;
-  --shadow-soft: 0 1px 2px rgb(16 40 37 / 0.04), 0 8px 24px -12px rgb(16 40 37 / 0.12);
-  --shadow-lift: 0 2px 4px rgb(16 40 37 / 0.05), 0 18px 40px -18px rgb(16 40 37 / 0.28);
+  --font-display: "Lexend Variable", "Plus Jakarta Sans Variable", ui-sans-serif, system-ui, sans-serif;
+  --shadow-soft: 0 1px 2px rgb(30 25 90 / 0.04), 0 8px 24px -12px rgb(30 25 90 / 0.14);
+  --shadow-lift: 0 2px 4px rgb(30 25 90 / 0.05), 0 18px 40px -18px rgb(30 25 90 / 0.32);
   --animate-ring: ring 1.8s ease-out infinite;
   --animate-fade-up: fade-up 0.5s ease-out both;
   @keyframes ring {
@@ -37,6 +42,39 @@
     from { opacity: 0.001; transform: translateY(8px); }
     to { opacity: 1; transform: none; }
   }
+}
+
+/* Dark mode: the same tokens, redefined. Components only use tokens, so every page follows. */
+.dark {
+  color-scheme: dark;
+  --color-mist: #0d0c1d;
+  --color-surface: #17162c;
+  --color-ink: #ecebf8;
+  --color-muted: #a2a3be;
+  --color-line: #2b2a47;
+  --color-primary: #5850d4;
+  --color-primary-hover: #6a62e4;
+  --color-brand-50: #16263a;
+  --color-brand-100: #1b3344;
+  --color-brand-200: #24485a;
+  --color-brand-300: #3aa79c;
+  --color-brand-600: #3ccabd;
+  --color-brand-700: #a9a3f7;
+  --color-brand-800: #c6c2fb;
+  --color-sun-50: #2a1430;
+  --color-sun-100: #3a1a40;
+  --color-sun-300: #6d2c6a;
+  --color-sun-700: #f3a9e6;
+  --color-red-50: #34141e;
+  --color-red-200: #5e2232;
+  --color-red-600: #ff8193;
+  --color-red-700: #ff9dac;
+  --color-red-800: #ffc2cb;
+  --color-slate-100: #26253c;
+  --color-slate-200: #353451;
+  --color-slate-700: #cfd0e2;
+  --shadow-soft: 0 1px 2px rgb(0 0 0 / 0.3), 0 8px 24px -12px rgb(0 0 0 / 0.5);
+  --shadow-lift: 0 2px 4px rgb(0 0 0 / 0.3), 0 18px 40px -18px rgb(0 0 0 / 0.7);
 }
 
 html {
@@ -67,43 +105,46 @@ h1, h2, h3 {
 
 @utility font-display {
   font-family: var(--font-display);
-  letter-spacing: -0.02em;
+  letter-spacing: -0.025em;
 }
 @utility btn {
   @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition duration-150 select-none disabled:cursor-not-allowed disabled:opacity-60 active:scale-[0.98];
 }
 @utility btn-primary {
-  @apply btn bg-brand-700 text-white shadow-sm hover:bg-brand-800;
+  @apply btn bg-primary text-white shadow-sm hover:bg-primary-hover;
 }
 @utility btn-accent {
-  @apply btn bg-sun-400 text-brand-950 shadow-sm hover:bg-sun-500;
+  @apply btn bg-[linear-gradient(100deg,var(--color-brand-500),var(--color-brand-700)_55%,var(--color-sun-400))] text-white shadow-md shadow-brand-700/20 hover:brightness-110;
+}
+@utility text-gradient {
+  @apply bg-[linear-gradient(100deg,var(--color-brand-500),var(--color-brand-700)_50%,var(--color-sun-400))] bg-clip-text text-transparent;
 }
 @utility btn-secondary {
-  @apply btn border border-line bg-white text-ink hover:border-brand-300 hover:bg-brand-50;
+  @apply btn border border-line bg-surface text-ink hover:border-brand-300 hover:bg-brand-50;
 }
 @utility btn-ghost {
-  @apply btn text-muted hover:bg-black/5 hover:text-ink;
+  @apply btn text-muted hover:bg-ink/5 hover:text-ink;
 }
 @utility btn-danger {
-  @apply btn border border-red-200 bg-white text-red-700 hover:bg-red-50;
+  @apply btn border border-red-200 bg-surface text-red-700 hover:bg-red-50;
 }
 @utility btn-sm {
   @apply rounded-lg px-3 py-1.5 text-xs;
 }
 @utility card {
-  @apply rounded-2xl border border-line bg-white p-5 shadow-[var(--shadow-soft)];
+  @apply rounded-2xl border border-line bg-surface p-5 shadow-[var(--shadow-soft)];
 }
 @utility label {
   @apply mb-1.5 block text-sm font-semibold text-ink;
 }
 @utility input {
-  @apply w-full rounded-xl border border-line bg-white px-3.5 py-2.5 text-sm outline-none transition placeholder:text-muted/70 focus:border-brand-400 focus:ring-4 focus:ring-brand-100;
+  @apply w-full rounded-xl border border-line bg-surface px-3.5 py-2.5 text-sm outline-none transition placeholder:text-muted/70 focus:border-brand-400 focus:ring-4 focus:ring-brand-100;
 }
 @utility hint {
   @apply mt-1 text-xs text-muted;
 }
 @utility chip {
-  @apply inline-flex cursor-pointer select-none items-center gap-1.5 rounded-full border border-line bg-white px-3.5 py-1.5 text-sm font-medium text-ink transition hover:border-brand-300 has-[:checked]:border-brand-600 has-[:checked]:bg-brand-700 has-[:checked]:text-white has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-brand-300;
+  @apply inline-flex cursor-pointer select-none items-center gap-1.5 rounded-full border border-line bg-surface px-3.5 py-1.5 text-sm font-medium text-ink transition hover:border-brand-300 has-[:checked]:border-primary has-[:checked]:bg-primary has-[:checked]:text-white has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-brand-300;
 }
 @utility badge {
   @apply inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold;

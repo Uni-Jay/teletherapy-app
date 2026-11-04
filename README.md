@@ -1,4 +1,6 @@
-# MindBridge – online therapy web app
+<p align="center"><img src="public/brand/mindguide-logo.png" alt="MindGuide AI" width="260"></p>
+
+# MindGuide AI – online therapy web app
 
 A web application that connects patients with verified therapists for video and audio sessions.
 
@@ -48,7 +50,9 @@ npm run dev                  # open http://localhost:3000
 3. Copy your secret key into `PAYSTACK_SECRET_KEY` (use the test key `sk_test_…` until you go live).
 4. Under **Settings → API Keys & Webhooks**, set the webhook URL to `https://YOUR-DOMAIN/api/paystack/webhook`.
 
-While testing, you can set `REQUIRE_SUBSCRIPTION_TO_BOOK=false` so patients can book without paying.
+Each plan unlocks different features (sessions per month, messaging, calls from chat, priority booking). The app enforces these on the server. Change what each plan includes in **Admin → Settings → Plan features**.
+
+To test booking without paying, use Paystack's test keys and test cards.
 
 ## 4. Optional services
 
@@ -112,4 +116,4 @@ src/lib/                     Supabase clients, auth, AI, Paystack, email/SMS, bo
 src/components/              Shared UI
 ```
 
-The platform name comes from `NEXT_PUBLIC_APP_NAME`.
+The platform name comes from `NEXT_PUBLIC_APP_NAME` (default "MindGuide AI"). The logo files are in `public/brand/`, and the browser and home-screen icons are `src/app/icon.png` and `src/app/apple-icon.png`.

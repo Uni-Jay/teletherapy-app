@@ -42,7 +42,7 @@ export function SlotPicker({ therapistId, ignoreAppointmentId }: { therapistId: 
               setDay(d.ymd);
             }}
             className={`flex min-w-[4.5rem] shrink-0 flex-col items-center whitespace-nowrap rounded-xl border px-3 py-2 text-sm transition ${
-              day === d.ymd ? "border-brand-700 bg-brand-700 text-white" : "border-line bg-white hover:border-brand-300"
+              day === d.ymd ? "border-brand-700 bg-primary text-white" : "border-line bg-surface hover:border-brand-300"
             }`}
           >
             <span className={`text-xs ${day === d.ymd ? "text-brand-100" : "text-muted"}`}>{d.weekday}</span>
@@ -63,7 +63,7 @@ export function SlotPicker({ therapistId, ignoreAppointmentId }: { therapistId: 
               key={s.startsAt}
               onClick={() => setPicked(s.startsAt)}
               className={`rounded-xl border py-2.5 text-sm font-semibold transition ${
-                picked === s.startsAt ? "border-sun-400 bg-sun-400 text-brand-950" : "border-line bg-white hover:border-brand-300"
+                picked === s.startsAt ? "border-sun-400 bg-sun-400 text-white" : "border-line bg-surface hover:border-brand-300"
               }`}
             >
               {s.label}

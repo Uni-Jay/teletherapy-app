@@ -63,7 +63,7 @@ export default async function AssessmentResult({ params }: { params: Promise<{ i
         <summary className="cursor-pointer font-medium">Your answers</summary>
         <ul className="mt-3 space-y-2 text-sm">
           {QUESTIONS.map((q) => (
-            <li key={q.id} className="flex justify-between gap-4 border-b border-black/5 pb-2">
+            <li key={q.id} className="flex justify-between gap-4 border-b border-ink/5 pb-2">
               <span>{q.text}</span>
               <span className="shrink-0 text-muted">{SCALE[answers[q.id] ?? 0]}</span>
             </li>

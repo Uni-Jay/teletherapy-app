@@ -28,7 +28,7 @@ export default async function AdminTherapists({ searchParams }: { searchParams: 
       <PageHeader title="Therapists" text="Review applications and manage verified therapists." />
       <div className="mb-4 flex gap-2">
         {TABS.map((t) => (
-          <Link key={t} href={`/admin/therapists?status=${t}`} className={`rounded-full px-4 py-1.5 text-sm font-medium capitalize ${t === status ? "bg-brand-600 text-white" : "bg-white text-muted shadow-sm"}`}>
+          <Link key={t} href={`/admin/therapists?status=${t}`} className={`rounded-full px-4 py-1.5 text-sm font-medium capitalize ${t === status ? "bg-brand-600 text-white" : "bg-surface text-muted shadow-sm"}`}>
             {t}
           </Link>
         ))}

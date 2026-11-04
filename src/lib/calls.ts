@@ -1,6 +1,7 @@
 import "server-only";
 import { createAdminClient } from "@/lib/supabase/server";
 import type { CurrentUser } from "@/lib/auth";
+import { getEntitlements } from "@/lib/plans";
 
 export type CallRow = {
   id: string;
@@ -34,6 +35,8 @@ export async function createCall(user: CurrentUser, otherId: string, type: "vide
   const patientId = user.role === "patient" ? user.id : otherId;
   const therapistId = user.role === "therapist" ? user.id : otherId;
   if (!(await canCall(patientId, therapistId))) return null;
+  // Calls outside a booked session are a plan feature
+  if (!appointmentId && !(await getEntitlements(patientId)).features.chatCalls) return null;
 
   // Cancel any older ringing call between the same two people so the other side only sees one.
   await admin

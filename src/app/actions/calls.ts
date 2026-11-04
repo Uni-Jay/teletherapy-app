@@ -9,6 +9,6 @@ export async function startCall(form: FormData) {
   const other = String(form.get("other_id") ?? "");
   const type = form.get("type") === "audio" ? "audio" : "video";
   const call = await createCall(user, other, type);
-  if (!call) redirect(user.role === "therapist" ? "/therapist/messages" : "/patient/messages");
+  if (!call) redirect(user.role === "therapist" ? `/therapist/messages/${other}?call=locked` : `/patient/messages/${other}?call=locked`);
   redirect(`/call/${call.id}`);
 }

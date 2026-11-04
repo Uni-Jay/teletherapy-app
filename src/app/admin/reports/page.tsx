@@ -36,7 +36,7 @@ export default async function AdminReports({ searchParams }: { searchParams: Pro
           const label = src === "ai" ? "High-risk flags" : st === "open" ? "Open" : "Resolved";
           const active = st === status && (src || "") === (sp.source ?? "");
           return (
-            <Link key={label} href={`/admin/reports?status=${st}${src ? `&source=${src}` : ""}`} className={`rounded-full px-4 py-1.5 text-sm font-medium ${active ? "bg-brand-600 text-white" : "bg-white text-muted shadow-sm"}`}>{label}</Link>
+            <Link key={label} href={`/admin/reports?status=${st}${src ? `&source=${src}` : ""}`} className={`rounded-full px-4 py-1.5 text-sm font-medium ${active ? "bg-brand-600 text-white" : "bg-surface text-muted shadow-sm"}`}>{label}</Link>
           );
         })}
       </div>
@@ -49,7 +49,7 @@ export default async function AdminReports({ searchParams }: { searchParams: Pro
               <div className="flex flex-wrap items-start justify-between gap-2">
                 <div>
                   <div className="flex items-center gap-2">
-                    {r.source === "ai" ? <span className="badge bg-red-50 text-red-700">High-risk assessment</span> : <span className="badge bg-black/5">User report</span>}
+                    {r.source === "ai" ? <span className="badge bg-red-50 text-red-700">High-risk assessment</span> : <span className="badge bg-ink/5">User report</span>}
                     <StatusBadge status={r.status} />
                   </div>
                   <p className="mt-2 font-semibold">{r.reason}</p>

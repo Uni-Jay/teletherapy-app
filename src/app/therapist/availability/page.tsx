@@ -26,7 +26,7 @@ export default async function AvailabilityPage() {
           <input type="date" name="day" min={today} required className="input w-48" />
           <SubmitButton className="btn-secondary" pendingText="…">Block day</SubmitButton>
         </form>
-        <ul className="mt-4 divide-y divide-black/5">
+        <ul className="mt-4 divide-y divide-ink/5">
           {(blocked ?? []).length === 0 && <li className="py-2 text-sm text-muted">No days blocked.</li>}
           {(blocked ?? []).map((b) => (
             <li key={b.id} className="flex items-center justify-between py-2 text-sm">

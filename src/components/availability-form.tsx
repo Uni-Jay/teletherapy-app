@@ -14,7 +14,7 @@ export function AvailabilityForm({ current }: { current: { weekday: number; star
     <form action={action} className="space-y-4">
       {state?.error && <Notice kind="error">{state.error}</Notice>}
       {state?.message && <Notice kind="success">{state.message}</Notice>}
-      <div className="divide-y divide-black/5">
+      <div className="divide-y divide-ink/5">
         {order.map((d) => {
           const row = byDay.get(d);
           return (

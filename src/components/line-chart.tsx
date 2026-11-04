@@ -38,14 +38,14 @@ export function LineChart({ points, max, min = 0, color = "#276e64", height = 20
       <svg width={width} height={height} role="img" className="block">
         {ticks.map((t) => (
           <g key={t}>
-            <line x1={pad.l} x2={width - pad.r} y1={ys(t)} y2={ys(t)} stroke="#e5e7eb" />
-            <text x={pad.l - 8} y={ys(t) + 4} fontSize="11" textAnchor="end" fill="#5f6f6d">{t}</text>
+            <line x1={pad.l} x2={width - pad.r} y1={ys(t)} y2={ys(t)} stroke="var(--color-line)" />
+            <text x={pad.l - 8} y={ys(t) + 4} fontSize="11" textAnchor="end" fill="var(--color-muted)">{t}</text>
           </g>
         ))}
         <path d={path} fill="none" stroke={color} strokeWidth="2.5" strokeLinejoin="round" strokeLinecap="round" />
         {points.map((p, i) => (
           <g key={i}>
-            <circle cx={xs(i)} cy={ys(p.y)} r="4" fill="#fff" stroke={color} strokeWidth="2">
+            <circle cx={xs(i)} cy={ys(p.y)} r="4" fill="var(--color-surface)" stroke={color} strokeWidth="2">
               <title>{`${p.x}: ${p.label ?? p.y}`}</title>
             </circle>
             {shown.has(i) && (
@@ -54,7 +54,7 @@ export function LineChart({ points, max, min = 0, color = "#276e64", height = 20
                 y={height - 6}
                 fontSize="11"
                 textAnchor={points.length > 1 && i === 0 ? "start" : points.length > 1 && i === last ? "end" : "middle"}
-                fill="#5f6f6d"
+                fill="var(--color-muted)"
               >
                 {p.x}
               </text>

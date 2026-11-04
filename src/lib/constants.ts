@@ -1,4 +1,4 @@
-export const APP_NAME = process.env.NEXT_PUBLIC_APP_NAME || "MindBridge";
+export const APP_NAME = process.env.NEXT_PUBLIC_APP_NAME || "MindGuide AI";
 export const TIMEZONE = "Africa/Lagos";
 
 export const CONCERNS = [

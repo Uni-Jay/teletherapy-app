@@ -2,12 +2,21 @@
 import { getCurrentUser } from "@/lib/auth";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { notify } from "@/lib/notifications";
+import { getEntitlements } from "@/lib/plans";
 
 export async function sendMessage(patientId: string, therapistId: string, body: string) {
   const user = await getCurrentUser();
   if (!user || (user.id !== patientId && user.id !== therapistId)) return { error: "Not allowed" };
   const text = body.trim().slice(0, 4000);
   if (!text) return { error: "Empty message" };
+  const ent = await getEntitlements(patientId);
+  if (!ent.features.messaging) {
+    return {
+      error: user.id === patientId
+        ? "Messaging is included in the Standard, Premium and Family plans. Upgrade on the Subscription page."
+        : "This patient's plan doesn't include messaging.",
+    };
+  }
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("messages")

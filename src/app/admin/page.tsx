@@ -50,9 +50,9 @@ export default async function AdminDashboard({ searchParams }: { searchParams: P
         title="Dashboard"
         text={RANGES[range]}
         action={
-          <div className="flex flex-wrap gap-1 rounded-xl border border-line bg-white p-1">
+          <div className="flex flex-wrap gap-1 rounded-xl border border-line bg-surface p-1">
             {Object.entries(RANGES).map(([k, label]) => (
-              <Link key={k} href={`/admin?range=${k}`} className={`rounded-lg px-3 py-1.5 text-xs font-semibold ${k === range ? "bg-brand-700 text-white" : "text-muted hover:bg-mist"}`}>
+              <Link key={k} href={`/admin?range=${k}`} className={`rounded-lg px-3 py-1.5 text-xs font-semibold ${k === range ? "bg-primary text-white" : "text-muted hover:bg-mist"}`}>
                 {label}
               </Link>
             ))}

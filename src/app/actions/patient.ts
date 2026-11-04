@@ -7,6 +7,7 @@ import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { QUESTIONS, scoreAnswers, type Answers } from "@/lib/assessment";
 import { summariseAssessment } from "@/lib/ai";
 import { getSlots, type Slot } from "@/lib/slots";
+import { getEntitlements } from "@/lib/plans";
 import { getSettings } from "@/lib/settings";
 import { notify, notifyAdmins } from "@/lib/notifications";
 import { formatDateTime } from "@/lib/format";
@@ -101,19 +102,9 @@ export async function addMoodCheckin(form: FormData) {
 
 // ---------------- Booking ----------------
 export async function fetchSlots(therapistId: string, dateYmd: string, ignoreAppointmentId?: string): Promise<Slot[]> {
-  await requireRole("patient");
-  return getSlots(therapistId, dateYmd, ignoreAppointmentId);
-}
-
-async function hasActiveSubscription(patientId: string) {
-  const { data } = await createAdminClient()
-    .from("subscriptions")
-    .select("id")
-    .eq("patient_id", patientId)
-    .in("status", ["active", "cancelled"]) // cancelled plans stay usable until the paid period ends
-    .gt("current_period_end", new Date().toISOString())
-    .limit(1);
-  return Boolean(data?.length);
+  const user = await requireRole("patient");
+  const ent = await getEntitlements(user.id);
+  return getSlots(therapistId, dateYmd, ignoreAppointmentId, ent.noticeHours);
 }
 
 export async function bookAppointment(_: ActionState, form: FormData): Promise<ActionState> {
@@ -124,12 +115,16 @@ export async function bookAppointment(_: ActionState, form: FormData): Promise<A
   const note = String(form.get("note") ?? "").slice(0, 1000);
   const shareDetails = form.get("share") === "on";
 
-  if (process.env.REQUIRE_SUBSCRIPTION_TO_BOOK !== "false" && !(await hasActiveSubscription(user.id))) {
-    return { error: "You need an active plan to book a session. Choose a plan on the Subscription page." };
+  const ent = await getEntitlements(user.id);
+  if (!ent.active) return { error: "You need an active plan to book a session. Choose a plan on the Subscription page." };
+  if (ent.sessionsLeft <= 0) {
+    return {
+      error: `You've used all ${ent.features.sessionsPerMonth} sessions in your ${ent.planName} plan for this billing period. Upgrade your plan or wait until it renews.`,
+    };
   }
 
   const dateYmd = new Intl.DateTimeFormat("en-CA", { timeZone: "Africa/Lagos" }).format(new Date(startsAt));
-  const slot = (await getSlots(therapistId, dateYmd)).find((s) => s.startsAt === new Date(startsAt).toISOString());
+  const slot = (await getSlots(therapistId, dateYmd, undefined, ent.noticeHours)).find((s) => s.startsAt === new Date(startsAt).toISOString());
   if (!slot) return { error: "That time is no longer available. Please pick another slot." };
 
   const admin = createAdminClient();
@@ -198,8 +193,10 @@ export async function rescheduleAppointment(_: ActionState, form: FormData): Pro
   if (appt.status === "accepted" && (new Date(appt.starts_at).getTime() - Date.now()) / 3600000 < cancellation_cutoff_hours) {
     return { error: `Sessions can only be rescheduled more than ${cancellation_cutoff_hours} hours in advance.` };
   }
+  const ent = await getEntitlements(user.id);
+  if (!ent.active) return { error: "Your plan has ended. Renew it on the Subscription page to reschedule." };
   const dateYmd = new Intl.DateTimeFormat("en-CA", { timeZone: "Africa/Lagos" }).format(new Date(startsAt));
-  const slot = (await getSlots(appt.therapist_id, dateYmd, id)).find((s) => s.startsAt === new Date(startsAt).toISOString());
+  const slot = (await getSlots(appt.therapist_id, dateYmd, id, ent.noticeHours)).find((s) => s.startsAt === new Date(startsAt).toISOString());
   if (!slot) return { error: "That time is no longer available." };
 
   const { error } = await supabase

@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { PageHeader } from "@/components/ui/misc";
 import { Avatar } from "@/components/avatar";
 import { BookingForm } from "@/components/booking-form";
+import { getEntitlements } from "@/lib/plans";
 import { RatingSummary, Stars } from "@/components/stars";
 import { BadgeCheck } from "lucide-react";
 import { formatDate } from "@/lib/format";
@@ -25,6 +26,7 @@ export default async function TherapistDetail({ params }: { params: Promise<{ id
     supabase.from("availability").select("weekday, start_time, end_time").eq("therapist_id", id).order("weekday"),
     supabase.from("patient_profiles").select("preferred_support").eq("id", user.id).single(),
   ]);
+  const ent = await getEntitlements(user.id);
   const { data: reviews } = await supabase.from("reviews").select("id, display_name, rating, comment, created_at").eq("therapist_id", id).order("created_at", { ascending: false }).limit(10);
   if (!t) notFound();
   const name = (t.profiles as unknown as { full_name: string } | null)?.full_name ?? "Therapist";
@@ -35,7 +37,7 @@ export default async function TherapistDetail({ params }: { params: Promise<{ id
       <div className="mt-4 grid gap-6 lg:grid-cols-5">
         <div className="space-y-6 lg:col-span-2">
           <div className="card overflow-hidden p-0">
-            <div className="h-20 bg-[linear-gradient(120deg,#195850,#2f8777_60%,#f4a259)]" />
+            <div className="h-20 bg-[linear-gradient(120deg,#3b33a6,#0f9a8f_60%,#c026a8)]" />
             <div className="-mt-10 px-6 pb-6">
               <div className="w-fit rounded-full ring-4 ring-white"><Avatar name={name} url={t.photo_url} size={84} /></div>
               <div className="mt-3 flex items-center gap-2">
@@ -87,7 +89,7 @@ export default async function TherapistDetail({ params }: { params: Promise<{ id
         </div>
         <div className="card h-fit p-6 sm:p-7 lg:sticky lg:top-24 lg:col-span-3">
           <PageHeader title="Book a session" text="Choose a time that suits you. Your therapist will confirm it." />
-          <BookingForm therapistId={t.id} preferred={pp?.preferred_support ?? "either"} />
+          <BookingForm therapistId={t.id} preferred={pp?.preferred_support ?? "either"} usage={{ active: ent.active, planName: ent.planName, used: ent.sessionsUsed, limit: ent.features.sessionsPerMonth, noticeHours: ent.noticeHours }} />
         </div>
       </div>
     </div>

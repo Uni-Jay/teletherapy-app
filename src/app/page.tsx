@@ -5,7 +5,8 @@ import {
 } from "lucide-react";
 import { APP_NAME, PLANS } from "@/lib/constants";
 import { naira } from "@/lib/format";
-import { Logo, LogoMark } from "@/components/logo";
+import { Logo, LogoMark, Wordmark } from "@/components/logo";
+import { describeFeatures, getPlanFeatures } from "@/lib/plans";
 
 const FEATURES = [
   { icon: Video, title: "Video and voice sessions", text: "Talk face to face or voice only, right in your browser. No app to install, and voice calls work on slower connections." },
@@ -34,9 +35,9 @@ const FAQ = [
 function HeroVisual() {
   return (
     <div className="relative mx-auto w-full max-w-[440px] lg:max-w-none" aria-hidden="true">
-      <div className="absolute -inset-6 rounded-[48px] bg-[radial-gradient(60%_60%_at_60%_40%,rgba(244,162,89,0.35),transparent_70%),radial-gradient(60%_60%_at_30%_70%,rgba(78,163,146,0.35),transparent_70%)] blur-2xl" />
+      <div className="absolute -inset-6 rounded-[48px] bg-[radial-gradient(60%_60%_at_60%_40%,rgba(192,38,168,0.28),transparent_70%),radial-gradient(60%_60%_at_30%_70%,rgba(15,154,143,0.32),transparent_70%)] blur-2xl" />
       {/* Call card */}
-      <div className="relative overflow-hidden rounded-[32px] bg-[radial-gradient(120%_90%_at_50%_0%,#1f6d61_0%,#0a2421_70%)] p-6 text-white shadow-[0_40px_80px_-30px_rgba(10,36,33,0.7)] ring-1 ring-white/10">
+      <div className="relative overflow-hidden rounded-[32px] bg-[radial-gradient(120%_90%_at_50%_0%,#3b33a6_0%,#130f38_70%)] p-6 text-white shadow-[0_40px_80px_-30px_rgba(10,36,33,0.7)] ring-1 ring-white/10">
         <div className="flex items-center justify-between text-[11px] text-white/70">
           <span className="flex items-center gap-1.5"><ShieldCheck className="size-3.5 text-brand-300" /> Private, encrypted call</span>
           <span className="rounded-full bg-white/10 px-2 py-0.5 tabular-nums">24:13</span>
@@ -62,15 +63,15 @@ function HeroVisual() {
         </div>
       </div>
       {/* Floating chips */}
-      <div className="absolute -left-4 top-10 hidden rounded-2xl bg-white p-3.5 shadow-[var(--shadow-lift)] ring-1 ring-line sm:block lg:-left-12">
+      <div className="absolute -left-4 top-10 hidden rounded-2xl bg-surface p-3.5 shadow-[var(--shadow-lift)] ring-1 ring-line sm:block lg:-left-12">
         <p className="eyebrow">Mood today</p>
         <div className="mt-1 flex items-end gap-2">
           <span className="font-display text-2xl font-bold">7/10</span>
           <span className="mb-1 text-xs font-semibold text-brand-600">↑ 3 this month</span>
         </div>
-        <svg width="120" height="32" className="mt-1"><polyline points="0,28 20,24 40,26 60,16 80,18 100,8 120,6" fill="none" stroke="#2f8777" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
+        <svg width="120" height="32" className="mt-1"><polyline points="0,28 20,24 40,26 60,16 80,18 100,8 120,6" fill="none" stroke="#0f9a8f" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
       </div>
-      <div className="absolute -bottom-6 -right-2 flex items-center gap-3 rounded-2xl bg-white p-3.5 pr-5 shadow-[var(--shadow-lift)] ring-1 ring-line lg:-right-8">
+      <div className="absolute -bottom-6 -right-2 flex items-center gap-3 rounded-2xl bg-surface p-3.5 pr-5 shadow-[var(--shadow-lift)] ring-1 ring-line lg:-right-8">
         <span className="flex size-10 items-center justify-center rounded-xl bg-brand-50 text-brand-700"><CalendarCheck className="size-5" /></span>
         <div>
           <p className="text-sm font-bold">Session confirmed</p>
@@ -81,9 +82,12 @@ function HeroVisual() {
   );
 }
 
-export default function Home() {
+export const dynamic = "force-dynamic";
+
+export default async function Home() {
+  const features = await getPlanFeatures();
   return (
-    <div className="overflow-x-hidden bg-white">
+    <div className="overflow-x-hidden bg-surface">
       {/* Nav */}
       <header className="sticky top-0 z-40 border-b border-line/70 bg-white/80 backdrop-blur-md">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-5">
@@ -102,19 +106,19 @@ export default function Home() {
       </header>
 
       {/* Hero */}
-      <section className="relative bg-[linear-gradient(180deg,#f2f8f6_0%,#ffffff_100%)]">
+      <section className="relative bg-[linear-gradient(180deg,var(--color-mist)_0%,var(--color-surface)_100%)]">
         <div className="mx-auto grid max-w-6xl items-center gap-16 px-5 pb-20 pt-14 lg:grid-cols-[1.05fr_1fr] lg:pb-28 lg:pt-20">
           <div className="animate-fade-up">
-            <p className="badge bg-white py-1.5 pl-1.5 pr-3 text-brand-800 shadow-sm ring-1 ring-line">
-              <span className="rounded-full bg-sun-400 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-brand-950">New</span>
+            <p className="badge bg-surface py-1.5 pl-1.5 pr-3 text-brand-800 shadow-sm ring-1 ring-line">
+              <span className="rounded-full bg-sun-400 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white">New</span>
               Online therapy, made for Nigeria
             </p>
-            <h1 className="font-display mt-6 text-[2.75rem] font-bold leading-[1.02] text-brand-950 sm:text-6xl lg:text-[4.2rem]">
+            <h1 className="font-display mt-6 text-[2.75rem] font-bold leading-[1.02] text-ink sm:text-6xl lg:text-[4.2rem]">
               Feel heard.
               <br />
-              <span className="relative text-brand-600">
+              <span className="relative text-gradient">
                 Feel better.
-                <svg className="absolute -bottom-2 left-0 w-full" height="12" viewBox="0 0 300 12" preserveAspectRatio="none" aria-hidden="true"><path d="M2 9c60-6 140-8 296-3" stroke="#f4a259" strokeWidth="5" fill="none" strokeLinecap="round" /></svg>
+                <svg className="absolute -bottom-2 left-0 w-full" height="12" viewBox="0 0 300 12" preserveAspectRatio="none" aria-hidden="true"><path d="M2 9c60-6 140-8 296-3" stroke="#c026a8" strokeWidth="5" fill="none" strokeLinecap="round" /></svg>
               </span>
             </h1>
             <p className="mt-7 max-w-xl text-lg leading-relaxed text-muted">
@@ -147,7 +151,7 @@ export default function Home() {
       <section id="how" className="scroll-mt-20 border-y border-line bg-mist">
         <div className="mx-auto max-w-6xl px-5 py-20">
           <p className="eyebrow text-brand-600">How it works</p>
-          <h2 className="font-display mt-2 max-w-xl text-4xl font-bold text-brand-950">From sign-up to your first session in three steps</h2>
+          <h2 className="font-display mt-2 max-w-xl text-4xl font-bold text-ink">From sign-up to your first session in three steps</h2>
           <ol className="mt-12 grid gap-6 md:grid-cols-3">
             {STEPS.map((s, i) => (
               <li key={s.title} className="card relative p-7">
@@ -166,7 +170,7 @@ export default function Home() {
           <div className="grid gap-12 lg:grid-cols-[1fr_2fr]">
             <div>
               <p className="eyebrow text-brand-600">Everything in one place</p>
-              <h2 className="font-display mt-2 text-4xl font-bold text-brand-950">Support that goes beyond the session</h2>
+              <h2 className="font-display mt-2 text-4xl font-bold text-ink">Support that goes beyond the session</h2>
               <p className="mt-4 text-muted">Your therapist, your sessions, your progress and your messages, together in one calm, private space.</p>
               <Link href="/register" className="btn-accent mt-8">Create a free account <ArrowRight className="size-4" /></Link>
             </div>
@@ -198,7 +202,7 @@ export default function Home() {
             <ul className="grid gap-3 sm:grid-cols-2">
               {["Your own profile and reviews", "Set availability in minutes", "Accept or decline bookings", "Built-in video and voice calls", "Private session notes", "Track earnings and payouts"].map((t) => (
                 <li key={t} className="flex items-center gap-3 rounded-2xl bg-white/6 px-4 py-3.5 text-sm font-medium ring-1 ring-white/10">
-                  <span className="flex size-6 items-center justify-center rounded-full bg-sun-400 text-brand-950"><Check className="size-3.5" strokeWidth={3} /></span>
+                  <span className="flex size-6 items-center justify-center rounded-full bg-sun-400 text-white"><Check className="size-3.5" strokeWidth={3} /></span>
                   {t}
                 </li>
               ))}
@@ -212,26 +216,20 @@ export default function Home() {
         <div className="mx-auto max-w-6xl px-5 py-24">
           <div className="text-center">
             <p className="eyebrow text-brand-600">Pricing</p>
-            <h2 className="font-display mt-2 text-4xl font-bold text-brand-950">Simple monthly plans</h2>
+            <h2 className="font-display mt-2 text-4xl font-bold text-ink">Simple monthly plans</h2>
             <p className="mx-auto mt-3 max-w-lg text-muted">Pay securely with Paystack. Cancel any time from your account.</p>
           </div>
           <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
             {PLANS.map((p) => {
               const featured = p.key === "standard";
-              const perks: Record<string, string[]> = {
-                basic: ["Sessions with a verified therapist", "Wellbeing assessment", "Progress tracker"],
-                standard: ["Everything in Basic", "More time with your therapist", "Private messaging"],
-                premium: ["Everything in Standard", "Our most complete support", "Priority booking"],
-                family: ["Support for your household", "Sessions for family members", "One simple bill"],
-              };
               return (
                 <div key={p.key} className={`relative flex flex-col rounded-3xl p-6 ${featured ? "bg-brand-900 text-white shadow-[var(--shadow-lift)]" : "card"}`}>
-                  {featured && <span className="badge absolute -top-3 left-6 bg-sun-400 text-brand-950">Most popular</span>}
+                  {featured && <span className="badge absolute -top-3 left-6 bg-sun-400 text-white">Most popular</span>}
                   <p className="font-display text-lg font-bold">{p.name}</p>
                   <p className="mt-4 font-display text-4xl font-bold">{naira(p.price)}</p>
                   <p className={`text-xs ${featured ? "text-brand-200" : "text-muted"}`}>per month</p>
                   <ul className="mt-6 flex-1 space-y-2.5 text-sm">
-                    {perks[p.key].map((x) => (
+                    {describeFeatures(features[p.key], p.key).map((x) => (
                       <li key={x} className="flex gap-2"><Check className={`mt-0.5 size-4 shrink-0 ${featured ? "text-sun-300" : "text-brand-600"}`} /> {x}</li>
                     ))}
                   </ul>
@@ -248,7 +246,7 @@ export default function Home() {
         <div className="mx-auto grid max-w-6xl gap-10 px-5 py-24 lg:grid-cols-[1fr_1.6fr]">
           <div>
             <p className="eyebrow text-brand-600">Questions</p>
-            <h2 className="font-display mt-2 text-4xl font-bold text-brand-950">Good to know</h2>
+            <h2 className="font-display mt-2 text-4xl font-bold text-ink">Good to know</h2>
             <p className="mt-4 text-muted">Can&apos;t find your answer? Ask in our community channel.</p>
             <a href="/api/telegram" className="btn-secondary mt-6"><Users className="size-4" /> Join our Telegram community</a>
           </div>
@@ -270,12 +268,12 @@ export default function Home() {
       <section className="px-5 py-20">
         <div className="mx-auto flex max-w-4xl flex-col items-center text-center">
           <span className="flex size-14 items-center justify-center rounded-2xl bg-sun-100 text-sun-700"><HeartHandshake className="size-7" /></span>
-          <h2 className="font-display mt-6 text-4xl font-bold text-brand-950 sm:text-5xl">You don&apos;t have to carry it alone</h2>
+          <h2 className="font-display mt-6 text-4xl font-bold text-ink sm:text-5xl">You don&apos;t have to carry it alone</h2>
           <p className="mt-4 max-w-xl text-lg text-muted">Take the first step today. It only takes a few minutes to get started.</p>
           <div className="mt-8 flex flex-wrap justify-center gap-3">
             <Link href="/register" className="btn-primary px-7 py-3.5 text-base">Get started <ArrowRight className="size-4" /></Link>
           </div>
-          <p className="mt-6 flex items-center gap-1.5 text-sm text-muted"><Star className="size-4 text-sun-400" fill="currentColor" strokeWidth={0} /> Rated by patients after every session</p>
+          <p className="mt-6 flex items-center gap-1.5 text-sm text-muted"><Star className="size-4 text-amber-400" fill="currentColor" strokeWidth={0} /> Rated by patients after every session</p>
         </div>
       </section>
 
@@ -285,7 +283,7 @@ export default function Home() {
           <div>
             <div className="flex items-center gap-2.5">
               <LogoMark light />
-              <span className="font-display text-xl font-bold text-white">{APP_NAME}</span>
+              <Wordmark light />
             </div>
             <p className="mt-4 max-w-sm text-sm text-brand-200/80">Online therapy with licensed, verified professionals. Private, flexible and built for you.</p>
           </div>

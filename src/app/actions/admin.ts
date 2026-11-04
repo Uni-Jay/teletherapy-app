@@ -81,3 +81,22 @@ export async function saveSettings(_: ActionState, form: FormData): Promise<Acti
   revalidatePath("/", "layout");
   return { message: "Settings saved." };
 }
+
+export async function savePlanFeatures(_: ActionState, form: FormData): Promise<ActionState> {
+  await requireRole("admin");
+  const keys = ["basic", "standard", "premium", "family"] as const;
+  const value: Record<string, unknown> = {};
+  for (const k of keys) {
+    const n = Number(form.get(`${k}_sessions`));
+    if (!Number.isInteger(n) || n < 0 || n > 100) return { error: "Sessions per month must be a whole number from 0 to 100." };
+    value[k] = {
+      sessionsPerMonth: n,
+      messaging: form.get(`${k}_messaging`) === "on",
+      chatCalls: form.get(`${k}_chatCalls`) === "on",
+      priorityBooking: form.get(`${k}_priorityBooking`) === "on",
+    };
+  }
+  await createAdminClient().from("settings").upsert({ key: "plan_features", value, updated_at: new Date().toISOString() });
+  revalidatePath("/", "layout");
+  return { message: "Plan features saved. They apply to every patient on that plan straight away." };
+}

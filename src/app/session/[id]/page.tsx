@@ -35,7 +35,7 @@ export default async function SessionPage({ params }: { params: Promise<{ id: st
     return (
       <main className="flex min-h-screen items-center justify-center bg-mist px-4">
         <div className="card max-w-md p-8 text-center">
-          <div className="mx-auto w-fit"><LogoMark size={44} /></div>
+          <div className="mx-auto w-fit"><LogoMark size={52} /></div>
           <CalendarClock className="mx-auto mt-6 size-8 text-brand-600" />
           <h1 className="page-title mt-3">Session room</h1>
           <p className="mt-2 text-muted">{blocker}</p>

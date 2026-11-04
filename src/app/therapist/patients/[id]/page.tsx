@@ -69,7 +69,7 @@ export default async function TherapistPatient({ params }: { params: Promise<{ i
                     <StatusBadge status={latest.risk} /> <span className="text-muted">{formatDate(latest.created_at)} · Mood {latest.mood_score}/6 · Anxiety {latest.anxiety_score}/6</span>
                   </div>
                   <p className="mt-3 text-sm leading-relaxed">{latest.summary}</p>
-                  {latest.answers?.notes && <p className="mt-3 rounded-lg bg-black/5 p-3 text-sm">Patient notes: “{latest.answers.notes}”</p>}
+                  {latest.answers?.notes && <p className="mt-3 rounded-lg bg-ink/5 p-3 text-sm">Patient notes: “{latest.answers.notes}”</p>}
                 </>
               ) : (
                 <p className="mt-2 text-sm text-muted">No assessment yet.</p>

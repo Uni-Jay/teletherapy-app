@@ -40,7 +40,7 @@ export default async function TherapistPatients() {
                   <td className="font-medium">{p.name}</td>
                   <td>{formatDate(p.last)}</td>
                   <td>{p.sessions}</td>
-                  <td>{consent.get(id) ? <span className="badge bg-brand-50 text-brand-800">Shared</span> : <span className="badge bg-black/5 text-muted">Not shared</span>}</td>
+                  <td>{consent.get(id) ? <span className="badge bg-brand-50 text-brand-800">Shared</span> : <span className="badge bg-ink/5 text-muted">Not shared</span>}</td>
                   <td className="text-right space-x-2">
                     <Link href={`/therapist/patients/${id}`} className="btn-secondary btn-sm">View</Link>
                     <Link href={`/therapist/messages/${id}`} className="btn-secondary btn-sm">Message</Link>

@@ -4,14 +4,13 @@ import { lagosToUtc, lagosWeekday } from "@/lib/format";
 
 export type Slot = { startsAt: string; endsAt: string; label: string };
 
-/** Minimum notice before a slot can be booked. */
-const MIN_NOTICE_MS = 2 * 60 * 60 * 1000;
 
 /**
  * Free booking slots for a therapist on one day (Lagos time).
  * Slots start on the hour inside each availability window and last `session_minutes`.
+ * `noticeHours` is how far ahead a slot must be (shorter with priority booking).
  */
-export async function getSlots(therapistId: string, dateYmd: string, ignoreAppointmentId?: string): Promise<Slot[]> {
+export async function getSlots(therapistId: string, dateYmd: string, ignoreAppointmentId?: string, noticeHours = 24): Promise<Slot[]> {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(dateYmd)) return [];
   const admin = createAdminClient();
   const weekday = lagosWeekday(dateYmd);
@@ -36,7 +35,7 @@ export async function getSlots(therapistId: string, dateYmd: string, ignoreAppoi
   const { data: booked } = await q;
 
   const minutes = therapist.session_minutes || 50;
-  const earliest = Date.now() + MIN_NOTICE_MS;
+  const earliest = Date.now() + noticeHours * 60 * 60 * 1000;
   const slots: Slot[] = [];
 
   for (const w of windows) {

@@ -9,7 +9,7 @@ const ymd = (d: Date) => new Intl.DateTimeFormat("en-CA", { timeZone: TIMEZONE }
 const time = (iso: string) => new Intl.DateTimeFormat("en-NG", { timeZone: TIMEZONE, hour: "numeric", minute: "2-digit" }).format(new Date(iso));
 
 const TONE: Record<string, string> = {
-  accepted: "bg-brand-700 text-white",
+  accepted: "bg-primary text-white",
   requested: "bg-sun-100 text-sun-700 ring-1 ring-sun-300",
   completed: "bg-brand-50 text-brand-800",
   cancelled: "bg-red-50 text-red-700 line-through",
@@ -60,7 +60,7 @@ export function MonthCalendar({ month, events, basePath }: { month: string; even
                 <div key={i} className={`min-h-[112px] border-b border-r border-line/70 p-2 ${d ? "" : "bg-mist/40"} ${i % 7 === 6 ? "border-r-0" : ""}`}>
                   {d && (
                     <>
-                      <span className={`inline-flex size-7 items-center justify-center rounded-full text-xs font-semibold ${k === today ? "bg-sun-400 text-brand-950" : "text-muted"}`}>
+                      <span className={`inline-flex size-7 items-center justify-center rounded-full text-xs font-semibold ${k === today ? "bg-sun-400 text-white" : "text-muted"}`}>
                         {d.getUTCDate()}
                       </span>
                       <div className="mt-1 space-y-1">
@@ -81,7 +81,7 @@ export function MonthCalendar({ month, events, basePath }: { month: string; even
         </div>
       </div>
       <div className="flex flex-wrap gap-4 border-t border-line px-5 py-3 text-xs text-muted">
-        <span className="flex items-center gap-1.5"><span className="size-2.5 rounded-full bg-brand-700" /> Confirmed</span>
+        <span className="flex items-center gap-1.5"><span className="size-2.5 rounded-full bg-primary" /> Confirmed</span>
         <span className="flex items-center gap-1.5"><span className="size-2.5 rounded-full bg-sun-300" /> Awaiting confirmation</span>
         <span className="flex items-center gap-1.5"><span className="size-2.5 rounded-full bg-brand-100" /> Completed</span>
         <span className="flex items-center gap-1.5"><span className="size-2.5 rounded-full bg-red-200" /> Cancelled</span>

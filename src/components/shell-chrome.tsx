@@ -32,10 +32,10 @@ function NavList({ nav, onNavigate }: { nav: NavItem[]; onNavigate?: () => void 
             href={item.href}
             onClick={onNavigate}
             className={`group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition ${
-              active ? "bg-white/12 text-white" : "text-brand-100/80 hover:bg-white/6 hover:text-white"
+              active ? "bg-white/12 text-white shadow-[inset_3px_0_0_var(--color-brand-400)]" : "text-indigo-100/75 hover:bg-white/6 hover:text-white"
             }`}
           >
-            <Icon className={`size-[18px] ${active ? "text-sun-400" : "text-brand-300 group-hover:text-brand-100"}`} strokeWidth={2} />
+            <Icon className={`size-[18px] ${active ? "text-brand-300" : "text-brand-200/60 group-hover:text-brand-100"}`} strokeWidth={2} />
             {item.label}
           </Link>
         );
@@ -106,7 +106,7 @@ export function ShellChrome({
       <div className="min-w-0 flex-1">
         <header className="sticky top-0 z-30 border-b border-line/80 bg-mist/85 backdrop-blur-md">
           <div className="mx-auto flex h-16 max-w-6xl items-center gap-3 px-4 sm:px-8">
-            <button onClick={() => setOpen(true)} className="rounded-xl p-2 text-ink hover:bg-black/5 lg:hidden" aria-label="Open menu">
+            <button onClick={() => setOpen(true)} className="rounded-xl p-2 text-ink hover:bg-ink/5 lg:hidden" aria-label="Open menu">
               <Menu className="size-5" />
             </button>
             <div className="lg:hidden">

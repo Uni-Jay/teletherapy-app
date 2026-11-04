@@ -34,7 +34,7 @@ export default async function PrivacyPage() {
         {therapists.size === 0 ? (
           <p className="mt-4 text-sm text-muted">You haven&apos;t booked with any therapists yet.</p>
         ) : (
-          <ul className="mt-4 divide-y divide-black/5">
+          <ul className="mt-4 divide-y divide-ink/5">
             {[...therapists].map(([id, name]) => {
               const on = granted.get(id) ?? false;
               return (

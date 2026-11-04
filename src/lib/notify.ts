@@ -40,7 +40,7 @@ export async function sendSms(phone: string | null | undefined, message: string)
     body: JSON.stringify({
       api_key: key,
       to: normaliseNgPhone(phone),
-      from: process.env.TERMII_SENDER_ID || APP_NAME.slice(0, 11),
+      from: process.env.TERMII_SENDER_ID || "MindGuide",
       sms: message,
       type: "plain",
       channel: "generic",
@@ -52,10 +52,10 @@ export async function sendSms(phone: string | null | undefined, message: string)
 
 export function emailLayout(title: string, body: string, cta?: { label: string; url: string }) {
   return `<div style="font-family:Arial,sans-serif;max-width:560px;margin:auto;color:#1d2a2a">
-  <h2 style="color:#276e64">${APP_NAME}</h2>
+  <h2 style="color:#3b33a6;font-family:Arial,sans-serif">Mind<span style="color:#3b33a6">Guide</span> <span style="color:#c026a8">AI</span></h2>
   <h3>${title}</h3>
   <div style="line-height:1.6">${body}</div>
-  ${cta ? `<p><a href="${cta.url}" style="display:inline-block;background:#276e64;color:#fff;padding:10px 18px;border-radius:8px;text-decoration:none">${cta.label}</a></p>` : ""}
+  ${cta ? `<p><a href="${cta.url}" style="display:inline-block;background:#3b33a6;color:#fff;padding:10px 18px;border-radius:8px;text-decoration:none">${cta.label}</a></p>` : ""}
   <p style="font-size:12px;color:#5f6f6d">If you are in immediate danger, call 112.</p>
 </div>`;
 }

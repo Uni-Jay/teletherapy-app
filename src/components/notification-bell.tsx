@@ -90,7 +90,7 @@ export function NotificationBell() {
     <div className="relative" ref={box}>
       <button
         onClick={() => setOpen((o) => !o)}
-        className="relative rounded-xl p-2.5 text-ink transition hover:bg-black/5"
+        className="relative rounded-xl p-2.5 text-ink transition hover:bg-ink/5"
         aria-label={`Notifications${unread ? `, ${unread} unread` : ""}`}
       >
         <Bell className="size-5" />
@@ -101,7 +101,7 @@ export function NotificationBell() {
         )}
       </button>
       {open && (
-        <div className="absolute right-0 top-12 z-50 w-[min(92vw,380px)] overflow-hidden rounded-2xl border border-line bg-white shadow-[var(--shadow-lift)]">
+        <div className="absolute right-0 top-12 z-50 w-[min(92vw,380px)] overflow-hidden rounded-2xl border border-line bg-surface shadow-[var(--shadow-lift)]">
           <div className="flex items-center justify-between border-b border-line px-4 py-3">
             <p className="font-display font-bold">Notifications</p>
             {unread > 0 && (

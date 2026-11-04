@@ -112,8 +112,8 @@ export function PageHeader({ title, text, action }: { title: string; text?: stri
 
 export function Notice({ kind = "info", children }: { kind?: "info" | "error" | "success" | "warning"; children: React.ReactNode }) {
   const styles = {
-    info: ["border-brand-200 bg-brand-50 text-brand-900", Info],
-    success: ["border-brand-200 bg-brand-50 text-brand-900", CircleCheck],
+    info: ["border-brand-200 bg-brand-50 text-ink", Info],
+    success: ["border-brand-200 bg-brand-50 text-ink", CircleCheck],
     error: ["border-red-200 bg-red-50 text-red-800", CircleAlert],
     warning: ["border-sun-300 bg-sun-50 text-sun-700", TriangleAlert],
   } as const;

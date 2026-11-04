@@ -9,7 +9,7 @@ export function Stars({ value, size = 16 }: { value: number; size?: number }) {
           <span key={i} className="relative inline-block" style={{ width: size, height: size }}>
             <Star className="absolute inset-0 text-line" style={{ width: size, height: size }} fill="currentColor" strokeWidth={0} />
             <span className="absolute inset-0 overflow-hidden" style={{ width: `${fill * 100}%` }}>
-              <Star className="text-sun-400" style={{ width: size, height: size }} fill="currentColor" strokeWidth={0} />
+              <Star className="text-amber-400" style={{ width: size, height: size }} fill="currentColor" strokeWidth={0} />
             </span>
           </span>
         );

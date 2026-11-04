@@ -55,7 +55,7 @@ export default async function PatientHome() {
         {/* Next session hero */}
         <div className="relative overflow-hidden rounded-3xl bg-brand-900 p-6 text-white shadow-[var(--shadow-lift)] sm:p-7 lg:col-span-2">
           <div className="absolute -right-16 -top-16 size-64 rounded-full bg-brand-600/50 blur-3xl" />
-          <div className="absolute -bottom-20 right-24 size-48 rounded-full bg-sun-500/25 blur-3xl" />
+          <div className="absolute -bottom-20 right-24 size-48 rounded-full bg-sun-400/35 blur-3xl" />
           <div className="relative">
             <p className="eyebrow !text-brand-200">Next session</p>
             {next ? (
@@ -165,8 +165,8 @@ export default async function PatientHome() {
             )}
             <Link href="/patient/subscription" className="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-brand-700">Manage plan <ArrowRight className="size-3.5" /></Link>
           </div>
-          <a href="/api/telegram" target="_blank" rel="noopener" className="group relative overflow-hidden rounded-2xl bg-sun-400 p-5 text-brand-950 transition hover:bg-sun-300">
-            <Users className="absolute -bottom-3 -right-3 size-24 text-brand-950/10" />
+          <a href="/api/telegram" target="_blank" rel="noopener" className="group relative overflow-hidden rounded-2xl bg-[linear-gradient(120deg,var(--color-brand-500),var(--color-brand-700)_55%,var(--color-sun-400))] p-5 text-white transition hover:brightness-110">
+            <Users className="absolute -bottom-3 -right-3 size-24 text-white/15" />
             <p className="font-display text-lg font-bold">Join our community</p>
             <p className="mt-1 text-sm">Connect with others on Telegram <ArrowRight className="inline size-3.5 transition group-hover:translate-x-0.5" /></p>
           </a>

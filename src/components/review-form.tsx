@@ -30,7 +30,7 @@ export function ReviewForm({ appointmentId }: { appointmentId: string }) {
               aria-label={`${i} star${i > 1 ? "s" : ""}`}
               aria-pressed={rating === i}
             >
-              <Star className={`size-9 ${i <= shown ? "text-sun-400" : "text-line"}`} fill="currentColor" strokeWidth={0} />
+              <Star className={`size-9 ${i <= shown ? "text-amber-400" : "text-line"}`} fill="currentColor" strokeWidth={0} />
             </button>
           ))}
           <span className="ml-3 text-sm font-semibold text-muted">{LABELS[shown]}</span>

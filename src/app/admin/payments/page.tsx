@@ -50,7 +50,7 @@ export default async function AdminPayments() {
         <p className="font-semibold">Active plans</p>
         <div className="mt-3 grid gap-3 sm:grid-cols-4">
           {byPlan.map((p) => (
-            <div key={p.key} className="rounded-xl bg-black/5 p-3"><p className="text-sm text-muted">{p.name} · {naira(p.price)}</p><p className="text-2xl font-bold">{p.n}</p></div>
+            <div key={p.key} className="rounded-xl bg-ink/5 p-3"><p className="text-sm text-muted">{p.name} · {naira(p.price)}</p><p className="text-2xl font-bold">{p.n}</p></div>
           ))}
         </div>
       </div>

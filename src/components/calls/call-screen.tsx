@@ -343,7 +343,7 @@ export function CallScreen(props: CallScreenProps) {
       phase === "media-error" ? "Microphone unavailable" : "Call ended";
     return (
       <div className="flex min-h-screen items-center justify-center bg-brand-950 px-4 py-10">
-        <div className="w-full max-w-sm rounded-3xl bg-white p-8 text-center shadow-2xl">
+        <div className="w-full max-w-sm rounded-3xl bg-surface p-8 text-center shadow-2xl">
           <div className="mx-auto w-fit"><Avatar name={other.name} url={other.photo} size={80} /></div>
           <h1 className="font-display mt-4 text-xl font-bold">{title}</h1>
           {phase === "media-error" ? (
@@ -367,7 +367,7 @@ export function CallScreen(props: CallScreenProps) {
   const showRemoteVideo = remoteVideo && phase === "connected";
 
   return (
-    <div ref={stageRef} className="relative flex h-[100dvh] flex-col overflow-hidden bg-[radial-gradient(120%_80%_at_50%_0%,#1f6d61_0%,#0a2421_60%)] text-white">
+    <div ref={stageRef} className="relative flex h-[100dvh] flex-col overflow-hidden bg-[radial-gradient(120%_80%_at_50%_0%,#3b33a6_0%,#130f38_60%)] text-white">
       <audio ref={remoteAudioRef} autoPlay />
       {/* Remote video fills the stage */}
       <video ref={remoteRef} autoPlay playsInline className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-500 ${showRemoteVideo ? "opacity-100" : "opacity-0"}`} muted />
@@ -431,7 +431,7 @@ export function CallScreen(props: CallScreenProps) {
       )}
 
       {/* Controls */}
-      <div className="relative z-10 flex items-center justify-center gap-4 bg-gradient-to-t from-black/50 to-transparent px-4 pb-[max(2rem,env(safe-area-inset-bottom))] pt-10 sm:gap-5">
+      <div className="relative z-10 flex items-center justify-center gap-4 bg-gradient-to-t from-ink/50 to-transparent px-4 pb-[max(2rem,env(safe-area-inset-bottom))] pt-10 sm:gap-5">
         <ControlButton onClick={toggleMic} active={!micOn} label={micOn ? "Mute" : "Unmute"}>
           {micOn ? <Mic className="size-6" /> : <MicOff className="size-6" />}
         </ControlButton>
@@ -464,7 +464,7 @@ export function CallScreen(props: CallScreenProps) {
 function ControlButton({ onClick, active, label, children, className = "" }: { onClick: () => void; active?: boolean; label: string; children: React.ReactNode; className?: string }) {
   return (
     <button onClick={onClick} className={`flex flex-col items-center gap-1.5 ${className}`} aria-label={label} aria-pressed={active}>
-      <span className={`flex size-14 items-center justify-center rounded-full backdrop-blur transition active:scale-95 ${active ? "bg-white text-brand-950" : "bg-white/15 text-white hover:bg-white/25"}`}>
+      <span className={`flex size-14 items-center justify-center rounded-full backdrop-blur transition active:scale-95 ${active ? "bg-surface text-ink" : "bg-white/15 text-white hover:bg-white/25"}`}>
         {children}
       </span>
       <span className="text-[11px] font-medium text-white/80">{label}</span>

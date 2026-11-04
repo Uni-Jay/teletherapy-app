@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import "@fontsource-variable/plus-jakarta-sans";
-import "@fontsource-variable/bricolage-grotesque";
+import "@fontsource-variable/lexend";
 import "./globals.css";
 import { APP_NAME } from "@/lib/constants";
 
@@ -9,7 +9,7 @@ export const metadata: Metadata = {
   description: "Private video and voice sessions with verified therapists, from anywhere in Nigeria.",
 };
 
-export const viewport: Viewport = { themeColor: "#195850" };
+export const viewport: Viewport = { themeColor: "#3b33a6" };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
