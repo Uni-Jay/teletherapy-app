@@ -90,7 +90,7 @@ export default async function Home() {
     <div className="overflow-x-hidden bg-surface">
       {/* Nav */}
       <header className="sticky top-0 z-40 border-b border-line/70 bg-white/80 backdrop-blur-md">
-        <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-5">
+        <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-2 px-4 sm:gap-4 sm:px-5">
           <Logo />
           <nav className="hidden items-center gap-7 text-sm font-medium text-muted md:flex">
             <a href="#how" className="hover:text-ink">How it works</a>
@@ -98,9 +98,9 @@ export default async function Home() {
             <a href="#pricing" className="hover:text-ink">Pricing</a>
             <a href="#faq" className="hover:text-ink">FAQ</a>
           </nav>
-          <div className="flex items-center gap-2">
-            <Link href="/login" className="btn-ghost btn-sm sm:px-4 sm:py-2 sm:text-sm">Sign in</Link>
-            <Link href="/register" className="btn-primary btn-sm sm:px-4 sm:py-2 sm:text-sm">Get started</Link>
+          <div className="flex items-center gap-1 sm:gap-2">
+            <Link href="/login" className="btn-ghost btn-sm whitespace-nowrap sm:px-4 sm:py-2 sm:text-sm">Sign in</Link>
+            <Link href="/register" className="btn-primary btn-sm whitespace-nowrap sm:px-4 sm:py-2 sm:text-sm">Get started</Link>
           </div>
         </div>
       </header>
@@ -113,11 +113,11 @@ export default async function Home() {
               <span className="rounded-full bg-sun-400 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white">New</span>
               Online therapy, made for Nigeria
             </p>
-            <h1 className="font-display mt-6 text-[2.75rem] font-bold leading-[1.02] text-ink sm:text-6xl lg:text-[4.2rem]">
-              Feel heard.
+            <h1 className="font-display mt-6 text-[2.5rem] font-bold leading-[1.05] text-ink sm:text-[3.5rem] lg:text-[3.75rem]">
+              Guiding minds,
               <br />
               <span className="relative text-gradient">
-                Feel better.
+                empowering women.
                 <svg className="absolute -bottom-2 left-0 w-full" height="12" viewBox="0 0 300 12" preserveAspectRatio="none" aria-hidden="true"><path d="M2 9c60-6 140-8 296-3" stroke="#c026a8" strokeWidth="5" fill="none" strokeLinecap="round" /></svg>
               </span>
             </h1>

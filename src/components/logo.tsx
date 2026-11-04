@@ -15,7 +15,7 @@ export function LogoMark({ size = 34, light = false }: { size?: number; light?: 
 /** Wordmark styled like the logo: "MindGuide" in the teal-to-indigo gradient, "AI" in magenta. */
 export function Wordmark({ light = false, className = "text-xl" }: { light?: boolean; className?: string }) {
   return (
-    <span className={`font-display font-semibold tracking-tight ${className}`}>
+    <span className={`whitespace-nowrap font-display font-semibold tracking-tight ${className}`}>
       <span className={light ? "text-white" : "bg-[linear-gradient(95deg,#0f9a8f,#3b33a6)] bg-clip-text text-transparent"}>MindGuide</span>{" "}
       <span className={light ? "text-[#f0a6e2]" : "text-sun-400"}>AI</span>
     </span>
@@ -24,7 +24,7 @@ export function Wordmark({ light = false, className = "text-xl" }: { light?: boo
 
 export function Logo({ light = false, href = "/" }: { light?: boolean; href?: string }) {
   return (
-    <Link href={href} className="inline-flex items-center gap-2" aria-label="MindGuide AI home">
+    <Link href={href} className="inline-flex shrink-0 items-center gap-2" aria-label="MindGuide AI home">
       <LogoMark light={light} size={light ? 28 : 36} />
       <Wordmark light={light} />
     </Link>
