@@ -87,8 +87,8 @@ Calls need HTTPS (or `localhost`) because browsers only allow camera and microph
 `/api/cron/reminders` sends email and SMS reminders 24 hours and 1 hour before each confirmed session. It must be called every 15 minutes.
 
 1. Set `CRON_SECRET` to a long random string.
-2. **On Vercel Pro**, `vercel.json` already schedules it, and Vercel sends the secret automatically.
-3. **On any other host**, create a free job at [cron-job.org](https://cron-job.org) that calls
+2. **On Vercel**, `vercel.json` runs it once a day (the most the free Hobby plan allows), and Vercel sends the secret automatically. On Vercel Pro you can change the schedule to `*/15 * * * *`.
+3. **For reminders every 15 minutes on the free plan or any other host**, create a free job at [cron-job.org](https://cron-job.org) that calls
    `https://YOUR-DOMAIN/api/cron/reminders?secret=YOUR_CRON_SECRET` every 15 minutes.
 
 ## 7. Deploy
