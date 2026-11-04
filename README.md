@@ -26,7 +26,7 @@ npm run dev                  # open http://localhost:3000
 
 ## 2. Set up Supabase (database and logins)
 
-1. Create a free project at [supabase.com](https://supabase.com).
+1. Create a project at [supabase.com](https://supabase.com). Use the **Pro** plan for the live site (daily backups and leaked-password protection); the free plan is fine for testing.
 2. Open **SQL Editor → New query**, paste everything from `supabase/schema.sql` and click **Run**. This creates all tables, security rules and file storage.
 3. Go to **Project Settings → API** and copy into `.env.local`:
    - `NEXT_PUBLIC_SUPABASE_URL` – Project URL
@@ -42,6 +42,8 @@ npm run dev                  # open http://localhost:3000
    ```sql
    update profiles set role = 'admin' where email = 'you@example.com';
    ```
+   The next time you open the admin pages you'll be asked to add an authenticator app (Google or Microsoft Authenticator). Admins must enter a code from it at every sign-in.
+7. Follow the Supabase part of [`docs/SECURITY.md`](docs/SECURITY.md): password rules, leaked-password protection, backups and the Security Advisor.
 
 ## 3. Set up Paystack (subscriptions)
 
@@ -99,6 +101,9 @@ The app needs a host that runs Node.js (a Next.js server), not plain static host
 After deploying, set `NEXT_PUBLIC_SITE_URL` to your live address and update the Supabase and Paystack URLs above.
 
 ## 8. Before going live
+
+Work through [`docs/SECURITY.md`](docs/SECURITY.md) first. It covers Supabase settings, hosting, account two-factor, backups and the independent security review.
+
 
 - [ ] Replace the placeholder text on `/privacy` and `/terms` with your real privacy policy and terms of use.
 - [ ] In **Admin → Settings**, add your Telegram link and the crisis helpline numbers to show patients.

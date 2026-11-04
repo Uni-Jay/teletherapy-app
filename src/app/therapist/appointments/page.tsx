@@ -42,7 +42,7 @@ export default async function TherapistAppointments() {
             {upcoming.map((a) => (
               <div key={a.id} className="card flex flex-wrap items-center justify-between gap-3">
                 <div>
-                  <p className="font-semibold">{a.patient?.full_name}</p>
+                  <p className="font-semibold">{a.patient?.full_name ?? "Patient"}</p>
                   <p className="text-sm text-muted">{formatDateTime(a.starts_at)} · {a.type}</p>
                 </div>
                 <div className="flex flex-wrap items-center gap-2">
@@ -69,7 +69,7 @@ export default async function TherapistAppointments() {
           <div className="space-y-2">
             {toClose.map((a) => (
               <div key={a.id} className="card flex items-center justify-between gap-3 py-3">
-                <Link href={`/therapist/appointments/${a.id}`} className="text-sm hover:underline">{a.patient?.full_name} · {formatDateTime(a.starts_at)}</Link>
+                <Link href={`/therapist/appointments/${a.id}`} className="text-sm hover:underline">{a.patient?.full_name ?? "Patient"} · {formatDateTime(a.starts_at)}</Link>
                 <form action={markCompleted}>
                   <input type="hidden" name="id" value={a.id} />
                   <SubmitButton className="btn-secondary btn-sm" pendingText="…">Mark completed</SubmitButton>
@@ -90,7 +90,7 @@ export default async function TherapistAppointments() {
                 {history.map((a) => (
                   <tr key={a.id}>
                     <td><Link href={`/therapist/appointments/${a.id}`} className="font-medium text-brand-700 hover:underline">{formatDateTime(a.starts_at)}</Link></td>
-                    <td>{a.patient?.full_name}</td>
+                    <td>{a.patient?.full_name ?? "Patient"}</td>
                     <td className="capitalize">{a.type}</td>
                     <td><StatusBadge status={a.status} />{a.status_reason && <p className="mt-1 text-xs text-muted">{a.status_reason}</p>}</td>
                   </tr>

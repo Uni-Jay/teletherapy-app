@@ -41,8 +41,28 @@ export async function requireRole(role: Role): Promise<CurrentUser> {
   if (!user) redirect("/login");
   if (!user.isActive) redirect("/suspended");
   if (user.role !== role) redirect(homeFor(user.role));
+  if (role === "admin") {
+    const mfa = await getMfaState();
+    if (mfa !== "verified") redirect(mfa === "none" ? "/mfa/setup" : "/mfa/verify");
+  }
   return user;
 }
+
+/**
+ * Two-factor status for the current session:
+ * "none" = no authenticator app added yet, "pending" = app added but this
+ * sign-in hasn't entered a code, "verified" = signed in with a code (aal2).
+ */
+export const getMfaState = cache(async (): Promise<"none" | "pending" | "verified"> => {
+  const supabase = await createClient();
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+  if (!session) return "none";
+  const { data } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel(session.access_token);
+  if (!data || data.nextLevel !== "aal2") return "none";
+  return data.currentLevel === "aal2" ? "verified" : "pending";
+});
 
 export function homeFor(role: Role) {
   return role === "admin" ? "/admin" : role === "therapist" ? "/therapist" : "/patient";

@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import { notify } from "@/lib/notifications";
 import { CONCERNS, NIGERIAN_STATES, SUPPORT_AREAS } from "@/lib/constants";
 import { firstName } from "@/lib/format";
+import { passwordProblem } from "@/lib/password";
 
 export type FormState = { error?: string; message?: string } | undefined;
 
@@ -93,7 +94,7 @@ export async function changePassword(_: FormState, form: FormData): Promise<Form
   if (!user) redirect("/login");
   const password = String(form.get("password") ?? "");
   const confirm = String(form.get("confirm") ?? "");
-  if (password.length < 8) return { error: "Use at least 8 characters." };
+  if (passwordProblem(password)) return { error: passwordProblem(password)! };
   if (password !== confirm) return { error: "The two passwords don't match." };
   const supabase = await createClient();
   const { error } = await supabase.auth.updateUser({ password });

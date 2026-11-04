@@ -2,13 +2,14 @@ import { requireRole } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/server";
 import { formatDate } from "@/lib/format";
 import { setUserActive } from "@/app/actions/admin";
+import { resetAdminMfa } from "@/app/actions/mfa";
 import { PageHeader } from "@/components/ui/misc";
 import { SubmitButton } from "@/components/ui/submit-button";
 
 export const metadata = { title: "Users" };
 
 export default async function AdminUsers({ searchParams }: { searchParams: Promise<{ q?: string; role?: string }> }) {
-  await requireRole("admin");
+  const me = await requireRole("admin");
   const { q, role } = await searchParams;
   const db = createAdminClient();
   let query = db.from("profiles").select("id, full_name, email, phone, role, is_active, created_at, last_seen_at").order("created_at", { ascending: false }).limit(200);
@@ -40,6 +41,12 @@ export default async function AdminUsers({ searchParams }: { searchParams: Promi
                 <td>{u.last_seen_at ? formatDate(u.last_seen_at) : "—"}</td>
                 <td>{u.is_active ? <span className="badge bg-brand-50 text-brand-800">Active</span> : <span className="badge bg-red-50 text-red-700">Suspended</span>}</td>
                 <td className="text-right">
+                  {u.role === "admin" && u.id !== me.id && (
+                    <form action={resetAdminMfa}>
+                      <input type="hidden" name="id" value={u.id} />
+                      <SubmitButton className="btn-secondary btn-sm" pendingText="…">Reset two-factor</SubmitButton>
+                    </form>
+                  )}
                   {u.role !== "admin" && (
                     <form action={setUserActive}>
                       <input type="hidden" name="id" value={u.id} />

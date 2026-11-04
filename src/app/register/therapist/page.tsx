@@ -36,8 +36,8 @@ export default function TherapistRegister() {
         </div>
         <div>
           <label className="label" htmlFor="password">Password</label>
-          <input className="input" id="password" name="password" type="password" minLength={8} required />
-          <p className="hint">At least 8 characters.</p>
+          <input className="input" id="password" name="password" type="password" minLength={10} required />
+          <p className="hint">At least 10 characters, with letters and numbers.</p>
         </div>
         <label className="flex items-start gap-2 text-sm">
           <input type="checkbox" name="agree" className="mt-1" />

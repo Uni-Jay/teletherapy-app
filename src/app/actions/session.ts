@@ -4,6 +4,7 @@ import { headers } from "next/headers";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { homeFor, type Role } from "@/lib/auth";
 import { CONCERNS, GENDERS, NIGERIAN_STATES, SUPPORT_AREAS } from "@/lib/constants";
+import { passwordProblem } from "@/lib/password";
 
 export type FormState = { error?: string; message?: string } | undefined;
 
@@ -52,7 +53,8 @@ export async function registerPatient(_: FormState, form: FormData): Promise<For
   const areas = pickList(form, "support_areas", SUPPORT_AREAS);
   const preferred = String(form.get("preferred_support") ?? "either");
 
-  if (!fullName || !email || password.length < 8) return { error: "Enter your name, email and a password of at least 8 characters." };
+  if (!fullName || !email) return { error: "Enter your name and email." };
+  if (passwordProblem(password)) return { error: passwordProblem(password)! };
   if (!Number.isInteger(age) || age < 10 || age > 120) return { error: "Please enter a valid age." };
   if (age < 18 && !guardianConsent) return { error: "Users under 18 need a parent or guardian's consent to register." };
   if (!NIGERIAN_STATES.includes(state) || !city) return { error: "Please enter your state and city." };
@@ -101,7 +103,8 @@ export async function registerTherapist(_: FormState, form: FormData): Promise<F
   const email = String(form.get("email") ?? "").trim().toLowerCase();
   const phone = String(form.get("phone") ?? "").trim();
   const password = String(form.get("password") ?? "");
-  if (!fullName || !email || password.length < 8) return { error: "Enter your name, email and a password of at least 8 characters." };
+  if (!fullName || !email) return { error: "Enter your name and email." };
+  if (passwordProblem(password)) return { error: passwordProblem(password)! };
   if (form.get("agree") !== "on") return { error: "Please agree to the terms to continue." };
 
   const supabase = await createClient();
@@ -128,7 +131,7 @@ export async function requestPasswordReset(_: FormState, form: FormData): Promis
 
 export async function updatePassword(_: FormState, form: FormData): Promise<FormState> {
   const password = String(form.get("password") ?? "");
-  if (password.length < 8) return { error: "Use at least 8 characters." };
+  if (passwordProblem(password)) return { error: passwordProblem(password)! };
   const supabase = await createClient();
   const { error } = await supabase.auth.updateUser({ password });
   if (error) return { error: error.message };

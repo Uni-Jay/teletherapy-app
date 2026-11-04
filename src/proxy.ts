@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 
-const PROTECTED = ["/patient", "/therapist", "/admin", "/session", "/call", "/notifications"];
+const PROTECTED = ["/patient", "/therapist", "/admin", "/session", "/call", "/notifications", "/mfa"];
 
 /** Refreshes the Supabase session cookie and sends signed-out visitors to /login. */
 export async function proxy(request: NextRequest) {

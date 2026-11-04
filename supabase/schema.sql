@@ -233,9 +233,11 @@ returns boolean language sql stable security definer set search_path = public as
   select exists (select 1 from profiles where id = auth.uid() and role = r and is_active);
 $$;
 
+-- Admins only get admin powers after entering their two-factor code (aal2).
+-- An admin password on its own is not enough to read other people's data.
 create or replace function public.is_admin()
 returns boolean language sql stable security definer set search_path = public as $$
-  select public.current_role_is('admin');
+  select public.current_role_is('admin') and coalesce(auth.jwt() ->> 'aal', 'aal1') = 'aal2';
 $$;
 
 create or replace function public.has_consent(p uuid, t uuid)
