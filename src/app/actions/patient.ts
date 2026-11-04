@@ -7,7 +7,7 @@ import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { QUESTIONS, scoreAnswers, type Answers } from "@/lib/assessment";
 import { summariseAssessment } from "@/lib/ai";
 import { getSlots, type Slot } from "@/lib/slots";
-import { getEntitlements } from "@/lib/plans";
+import { getEntitlements, hasFeature } from "@/lib/plans";
 import { getSettings } from "@/lib/settings";
 import { notify, notifyAdmins } from "@/lib/notifications";
 import { formatDateTime } from "@/lib/format";
@@ -91,6 +91,7 @@ export async function submitAssessment(_: ActionState, form: FormData): Promise<
 // ---------------- Mood check-in ----------------
 export async function addMoodCheckin(form: FormData) {
   const user = await requireRole("patient");
+  if (!hasFeature(await getEntitlements(user.id), "progressTracker")) return;
   const mood = Number(form.get("mood"));
   if (!(mood >= 1 && mood <= 10)) return;
   const supabase = await createClient();

@@ -6,15 +6,16 @@ import { PLANS, type PlanKey } from "@/lib/constants";
 export type PlanFeatures = {
   sessionsPerMonth: number;
   messaging: boolean;
+  progressTracker: boolean;
   chatCalls: boolean;
   priorityBooking: boolean;
 };
 
 export const DEFAULT_FEATURES: Record<PlanKey, PlanFeatures> = {
-  basic: { sessionsPerMonth: 2, messaging: false, chatCalls: false, priorityBooking: false },
-  standard: { sessionsPerMonth: 4, messaging: true, chatCalls: false, priorityBooking: false },
-  premium: { sessionsPerMonth: 8, messaging: true, chatCalls: true, priorityBooking: true },
-  family: { sessionsPerMonth: 12, messaging: true, chatCalls: true, priorityBooking: true },
+  basic: { sessionsPerMonth: 2, messaging: false, progressTracker: false, chatCalls: false, priorityBooking: false },
+  standard: { sessionsPerMonth: 4, messaging: true, progressTracker: true, chatCalls: false, priorityBooking: false },
+  premium: { sessionsPerMonth: 8, messaging: true, progressTracker: true, chatCalls: true, priorityBooking: true },
+  family: { sessionsPerMonth: 12, messaging: true, progressTracker: true, chatCalls: true, priorityBooking: true },
 };
 
 /** How far ahead a slot must be. Priority booking lets people book closer to the time. */
@@ -45,7 +46,7 @@ export type Entitlements = {
   noticeHours: number;
 };
 
-const NONE: PlanFeatures = { sessionsPerMonth: 0, messaging: false, chatCalls: false, priorityBooking: false };
+const NONE: PlanFeatures = { sessionsPerMonth: 0, messaging: false, progressTracker: false, chatCalls: false, priorityBooking: false };
 
 /**
  * The patient's current plan and what it allows. A cancelled plan keeps working until its paid period ends.
@@ -103,11 +104,34 @@ export function describeFeatures(f: PlanFeatures, key: PlanKey) {
   const list = [
     `${f.sessionsPerMonth} video or voice sessions a month${key === "family" ? ", shared by your household" : ""}`,
     "Verified, licensed therapists",
-    "AI wellbeing assessment and progress tracker",
-    "Appointment reminders by email and SMS",
+    "AI wellbeing assessment",
+    "Session calendar and reminders by email and SMS",
   ];
   if (f.messaging) list.push("Private messaging with your therapist");
+  if (f.progressTracker) list.push("Mood check-ins and progress tracker");
   if (f.chatCalls) list.push("Call your therapist from chat, outside booked sessions");
   if (f.priorityBooking) list.push(`Priority booking: book as little as ${NOTICE_HOURS.priority} hours ahead`);
   return list;
+}
+
+/** Features a patient can be locked out of, with the wording used on upgrade screens. */
+export type GatedFeature = "booking" | "messaging" | "progressTracker" | "chatCalls";
+export const FEATURE_INFO: Record<GatedFeature, { title: string; text: string }> = {
+  booking: { title: "Sessions and calendar", text: "Book video and voice sessions with verified therapists and keep track of them in your calendar." },
+  messaging: { title: "Private messaging", text: "Message your therapist between sessions, privately and securely." },
+  progressTracker: { title: "Progress tracker", text: "Log how you feel each day and see your mood and wellbeing scores change over time." },
+  chatCalls: { title: "Calls from chat", text: "Call your therapist straight from your conversation, outside booked sessions." },
+};
+
+export function hasFeature(ent: Entitlements, feature: GatedFeature) {
+  if (!ent.active) return false;
+  if (feature === "booking") return true;
+  return Boolean(ent.features[feature]);
+}
+
+/** The cheapest plan that includes a feature, for "Available on Standard and above". */
+export async function cheapestPlanWith(feature: GatedFeature) {
+  const all = await getPlanFeatures();
+  const p = PLANS.find((x) => feature === "booking" || all[x.key][feature as keyof PlanFeatures]);
+  return p ?? null;
 }

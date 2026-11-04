@@ -1,3 +1,4 @@
+import { getEntitlements } from "@/lib/plans";
 import Link from "next/link";
 import { requireRole } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
@@ -25,6 +26,11 @@ export default async function TherapistPatients() {
     if (a.status === "completed") p.sessions++;
     patients.set(a.patient_id, p);
   }
+  const msgOk = new Set(
+    (await Promise.all([...patients.keys()].map(async (pid) => [pid, (await getEntitlements(pid)).features.messaging] as const)))
+      .filter(([, ok]) => ok)
+      .map(([pid]) => pid)
+  );
   return (
     <div>
       <PageHeader title="Patients" text="Patients who have booked with you. You can see their details only if they have given consent." />
@@ -43,7 +49,7 @@ export default async function TherapistPatients() {
                   <td>{consent.get(id) ? <span className="badge bg-brand-50 text-brand-800">Shared</span> : <span className="badge bg-ink/5 text-muted">Not shared</span>}</td>
                   <td className="text-right space-x-2">
                     <Link href={`/therapist/patients/${id}`} className="btn-secondary btn-sm">View</Link>
-                    <Link href={`/therapist/messages/${id}`} className="btn-secondary btn-sm">Message</Link>
+                    {msgOk.has(id) && <Link href={`/therapist/messages/${id}`} className="btn-secondary btn-sm">Message</Link>}
                   </td>
                 </tr>
               ))}

@@ -107,7 +107,7 @@ export function Chat({
           </button>
         </form></>)}
       </div>
-      {(callLocked || !canCall) && (
+      {callLocked && !canCall && (
         <div className="flex items-center gap-2 border-b border-line bg-sun-50 px-5 py-2 text-xs text-sun-700">
           <Lock className="size-3.5 shrink-0" />
           Calls outside booked sessions are included in the Premium and Family plans. Booked sessions can always be joined.

@@ -1,11 +1,12 @@
 import Link from "next/link";
-import { ArrowRight, CalendarPlus, ClipboardCheck, MessageCircle, Phone, Search, Users, Video } from "lucide-react";
+import { ArrowRight, CalendarPlus, ClipboardCheck, CreditCard, MessageCircle, Phone, Search, Users, Video } from "lucide-react";
 import { requireRole } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { getSettings } from "@/lib/settings";
 import { firstName, formatDate, formatDateTime } from "@/lib/format";
 import { StatusBadge } from "@/components/ui/misc";
 import { MoodCheckin } from "@/components/mood-checkin";
+import { getEntitlements, hasFeature } from "@/lib/plans";
 import { CrisisBanner } from "@/components/crisis-banner";
 import { Avatar } from "@/components/avatar";
 
@@ -18,6 +19,9 @@ function greeting() {
 
 export default async function PatientHome() {
   const user = await requireRole("patient");
+  const ent = await getEntitlements(user.id);
+  const canMessage = hasFeature(ent, "messaging");
+  const canTrack = hasFeature(ent, "progressTracker");
   const supabase = await createClient();
   const now = new Date().toISOString();
   const [{ data: next }, { data: assessment }, { data: sub }, { data: moods }, settings] = await Promise.all([
@@ -82,9 +86,11 @@ export default async function PatientHome() {
                       {next.type === "audio" ? <Phone className="size-4" /> : <Video className="size-4" />} Join session
                     </Link>
                   )}
-                  <Link href={`/patient/messages/${next.therapist_id}`} className="btn bg-white/10 px-4 py-3 text-white hover:bg-white/20">
-                    <MessageCircle className="size-4" /> Message
-                  </Link>
+                  {canMessage && (
+                    <Link href={`/patient/messages/${next.therapist_id}`} className="btn bg-white/10 px-4 py-3 text-white hover:bg-white/20">
+                      <MessageCircle className="size-4" /> Message
+                    </Link>
+                  )}
                 </div>
               </div>
             ) : (
@@ -96,6 +102,7 @@ export default async function PatientHome() {
             )}
           </div>
         </div>
+        {canTrack ? (
         <div className="card">
           <MoodCheckin />
           {week.length > 1 && (
@@ -109,6 +116,35 @@ export default async function PatientHome() {
             </div>
           )}
         </div>
+        ) : (
+          <div className="card flex flex-col">
+            <p className="eyebrow">Your plan</p>
+            {ent.active ? (
+              <>
+                <p className="font-display mt-2 text-xl font-bold">{ent.planName}</p>
+                <div className="mt-4 flex items-baseline justify-between text-sm">
+                  <span className="font-semibold">Sessions left</span>
+                  <span className="tabular-nums text-muted">{ent.sessionsLeft} of {ent.features.sessionsPerMonth}</span>
+                </div>
+                <div className="mt-2 h-2 overflow-hidden rounded-full bg-line">
+                  <div className="h-full rounded-full bg-[linear-gradient(90deg,var(--color-brand-500),var(--color-brand-700))]" style={{ width: `${ent.features.sessionsPerMonth ? (ent.sessionsLeft / ent.features.sessionsPerMonth) * 100 : 0}%` }} />
+                </div>
+                <p className="mt-2 text-xs text-muted">Resets {formatDate(ent.periodEnd!)}</p>
+                {ent.sessionsLeft > 0 ? (
+                  <Link href="/patient/therapists" className="btn-primary mt-5 w-full">Book a session</Link>
+                ) : (
+                  <Link href="/patient/subscription" className="btn-accent mt-5 w-full">Upgrade for more sessions</Link>
+                )}
+              </>
+            ) : (
+              <>
+                <p className="font-display mt-2 text-xl font-bold">Choose a plan to start</p>
+                <p className="mt-1 text-sm text-muted">Plans start from ₦10,000 a month and include sessions with a verified therapist.</p>
+                <Link href="/patient/subscription" className="btn-accent mt-5 w-full">See plans</Link>
+              </>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Quick actions */}
@@ -116,7 +152,9 @@ export default async function PatientHome() {
         {[
           { href: "/patient/therapists", icon: Search, label: "Find a therapist" },
           { href: "/patient/appointments", icon: CalendarPlus, label: "My sessions" },
-          { href: "/patient/messages", icon: MessageCircle, label: "Messages" },
+          canMessage
+            ? { href: "/patient/messages", icon: MessageCircle, label: "Messages" }
+            : { href: "/patient/subscription", icon: CreditCard, label: ent.active ? "My plan" : "Choose a plan" },
           { href: "/patient/assessment", icon: ClipboardCheck, label: "Take assessment" },
         ].map((q) => (
           <Link key={q.href} href={q.href} className="card flex items-center gap-3 p-4 transition hover:border-brand-200 hover:shadow-[var(--shadow-lift)]">
@@ -142,7 +180,7 @@ export default async function PatientHome() {
               </div>
               <div className="mt-5 flex gap-2">
                 <Link href={`/patient/assessment/${assessment.id}`} className="btn-secondary btn-sm">View details</Link>
-                <Link href="/patient/progress" className="btn-ghost btn-sm">See progress <ArrowRight className="size-3.5" /></Link>
+                {canTrack && <Link href="/patient/progress" className="btn-ghost btn-sm">See progress <ArrowRight className="size-3.5" /></Link>}
               </div>
             </>
           ) : (
@@ -152,7 +190,8 @@ export default async function PatientHome() {
             </>
           )}
         </div>
-        <div className="grid gap-6">
+        <div className="grid content-start gap-6">
+          {canTrack && (
           <div className="card">
             <p className="eyebrow">Plan</p>
             {subActive ? (
@@ -165,6 +204,7 @@ export default async function PatientHome() {
             )}
             <Link href="/patient/subscription" className="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-brand-700">Manage plan <ArrowRight className="size-3.5" /></Link>
           </div>
+          )}
           <a href="/api/telegram" target="_blank" rel="noopener" className="group relative overflow-hidden rounded-2xl bg-[linear-gradient(120deg,var(--color-brand-500),var(--color-brand-700)_55%,var(--color-sun-400))] p-5 text-white transition hover:brightness-110">
             <Users className="absolute -bottom-3 -right-3 size-24 text-white/15" />
             <p className="font-display text-lg font-bold">Join our community</p>

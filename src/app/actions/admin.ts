@@ -92,6 +92,7 @@ export async function savePlanFeatures(_: ActionState, form: FormData): Promise<
     value[k] = {
       sessionsPerMonth: n,
       messaging: form.get(`${k}_messaging`) === "on",
+      progressTracker: form.get(`${k}_progressTracker`) === "on",
       chatCalls: form.get(`${k}_chatCalls`) === "on",
       priorityBooking: form.get(`${k}_priorityBooking`) === "on",
     };

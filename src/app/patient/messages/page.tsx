@@ -1,3 +1,5 @@
+import { getEntitlements, hasFeature } from "@/lib/plans";
+import { UpgradeGate } from "@/components/upgrade-gate";
 import Link from "next/link";
 import { requireRole } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
@@ -8,6 +10,8 @@ export const metadata = { title: "Messages" };
 
 export default async function PatientMessages() {
   const user = await requireRole("patient");
+  const ent = await getEntitlements(user.id);
+  if (!hasFeature(ent, "messaging")) return <UpgradeGate feature="messaging" ent={ent} />;
   const supabase = await createClient();
   const { data } = await supabase
     .from("appointments")

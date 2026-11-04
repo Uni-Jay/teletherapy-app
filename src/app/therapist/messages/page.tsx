@@ -1,3 +1,4 @@
+import { getEntitlements } from "@/lib/plans";
 import Link from "next/link";
 import { requireRole } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
@@ -19,11 +20,12 @@ export default async function TherapistMessages() {
   ]);
   const people = new Map<string, string>();
   for (const r of (data ?? []) as unknown as { patient_id: string; patient: { full_name: string } | null }[]) people.set(r.patient_id, r.patient?.full_name ?? "Patient");
+  for (const pid of [...people.keys()]) if (!(await getEntitlements(pid)).features.messaging) people.delete(pid);
   return (
     <div className="max-w-2xl">
       <PageHeader title="Messages" text="Secure messages with your patients." />
       {people.size === 0 ? (
-        <EmptyState title="No conversations yet" />
+        <EmptyState title="No conversations yet" text="Patients whose plan includes messaging appear here." />
       ) : (
         <div className="space-y-2">
           {[...people].map(([id, name]) => {

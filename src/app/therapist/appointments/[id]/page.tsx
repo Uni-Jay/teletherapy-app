@@ -1,3 +1,4 @@
+import { getEntitlements } from "@/lib/plans";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { CalendarClock, MessageCircle, Phone, UserRound, Video } from "lucide-react";
@@ -28,6 +29,7 @@ export default async function TherapistAppointment({ params }: { params: Promise
     supabase.from("calls").select("answered_at, ended_at, status").eq("appointment_id", id).order("created_at", { ascending: false }).limit(5),
   ]);
   if (!a) notFound();
+  const pf = (await getEntitlements(a.patient_id)).features;
   const name = (a.patient as unknown as { full_name: string } | null)?.full_name ?? "Patient";
   const started = new Date(a.starts_at).getTime() <= nowMs();
   const talked = (calls ?? []).reduce((s, c) => s + (c.answered_at && c.ended_at ? (new Date(c.ended_at).getTime() - new Date(c.answered_at).getTime()) / 60000 : 0), 0);
@@ -60,12 +62,12 @@ export default async function TherapistAppointment({ params }: { params: Promise
                 </form>
               )}
               <Link href={`/therapist/patients/${a.patient_id}`} className="btn-secondary"><UserRound className="size-4" /> Patient details</Link>
-              <Link href={`/therapist/messages/${a.patient_id}`} className="btn-secondary"><MessageCircle className="size-4" /> Message</Link>
-              <form action={startCall}>
+              {pf.messaging && <Link href={`/therapist/messages/${a.patient_id}`} className="btn-secondary"><MessageCircle className="size-4" /> Message</Link>}
+              {pf.chatCalls && <form action={startCall}>
                 <input type="hidden" name="other_id" value={a.patient_id} />
                 <input type="hidden" name="type" value="audio" />
                 <button className="btn-ghost w-full"><Phone className="size-4" /> Voice call now</button>
-              </form>
+              </form>}
             </div>
           </div>
         </div>

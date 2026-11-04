@@ -1,3 +1,4 @@
+import { getEntitlements } from "@/lib/plans";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requireRole } from "@/lib/auth";
@@ -12,6 +13,7 @@ export const metadata = { title: "Patient" };
 export default async function TherapistPatient({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const user = await requireRole("therapist");
+  const canMessage = (await getEntitlements(id)).features.messaging;
   const supabase = await createClient();
   const [{ data: profile }, { data: consent }, { data: appts }] = await Promise.all([
     supabase.from("profiles").select("full_name").eq("id", id).single(),
@@ -34,7 +36,7 @@ export default async function TherapistPatient({ params }: { params: Promise<{ i
   return (
     <div className="space-y-6">
       <Link href="/therapist/patients" className="text-sm text-brand-700">← Patients</Link>
-      <PageHeader title={profile.full_name} action={<Link href={`/therapist/messages/${id}`} className="btn-secondary">Message</Link>} />
+      <PageHeader title={profile.full_name} action={canMessage ? <Link href={`/therapist/messages/${id}`} className="btn-secondary">Message</Link> : undefined} />
 
       {!allowed ? (
         <Notice>This patient has not shared their details with you. You can still see your appointments together below.</Notice>

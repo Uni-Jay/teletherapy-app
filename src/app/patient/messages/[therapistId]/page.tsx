@@ -1,8 +1,9 @@
+import { getEntitlements, hasFeature } from "@/lib/plans";
+import { UpgradeGate } from "@/components/upgrade-gate";
 import Link from "next/link";
 import { requireRole } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { Chat } from "@/components/chat";
-import { getEntitlements } from "@/lib/plans";
 
 export const metadata = { title: "Conversation" };
 
@@ -10,8 +11,10 @@ export default async function PatientChat({ params, searchParams }: { params: Pr
   const { therapistId } = await params;
   const sp = await searchParams;
   const user = await requireRole("patient");
-  const supabase = await createClient();
   const ent = await getEntitlements(user.id);
+  if (!hasFeature(ent, "messaging")) return <UpgradeGate feature="messaging" ent={ent} />;
+  const supabase = await createClient();
+  
   const [{ data: t }, { data: tp }, { data: msgs }] = await Promise.all([
     supabase.from("profiles").select("full_name").eq("id", therapistId).single(),
     supabase.from("therapist_profiles").select("photo_url, title").eq("id", therapistId).maybeSingle(),

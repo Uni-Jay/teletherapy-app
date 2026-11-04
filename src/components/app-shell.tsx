@@ -1,5 +1,5 @@
 import { signOut } from "@/app/actions/auth";
-import { ShellChrome, type NavItem } from "./shell-chrome";
+import { ShellChrome, type NavItem, type PlanChip } from "./shell-chrome";
 import { IncomingCall } from "./calls/incoming-call";
 
 export type { NavItem };
@@ -10,6 +10,7 @@ export function AppShell({
   roleLabel,
   userId,
   withCalls = false,
+  plan,
   children,
 }: {
   nav: NavItem[];
@@ -17,10 +18,11 @@ export function AppShell({
   roleLabel: string;
   userId: string;
   withCalls?: boolean;
+  plan?: PlanChip;
   children: React.ReactNode;
 }) {
   return (
-    <ShellChrome nav={nav} userName={userName} roleLabel={roleLabel} signOut={signOut}>
+    <ShellChrome nav={nav} userName={userName} roleLabel={roleLabel} signOut={signOut} plan={plan}>
       {children}
       {withCalls && <IncomingCall userId={userId} />}
     </ShellChrome>

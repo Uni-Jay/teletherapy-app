@@ -1,3 +1,5 @@
+import { getEntitlements, hasFeature } from "@/lib/plans";
+import { UpgradeGate } from "@/components/upgrade-gate";
 import { requireRole } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { PageHeader } from "@/components/ui/misc";
@@ -7,6 +9,8 @@ export const metadata = { title: "Calendar" };
 
 export default async function PatientCalendar({ searchParams }: { searchParams: Promise<{ month?: string }> }) {
   const user = await requireRole("patient");
+  const ent = await getEntitlements(user.id);
+  if (!hasFeature(ent, "booking")) return <UpgradeGate feature="booking" ent={ent} />;
   const { month, from, to } = monthRange((await searchParams).month);
   const supabase = await createClient();
   const { data } = await supabase

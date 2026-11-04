@@ -17,6 +17,7 @@ const ICONS = {
 } as const;
 
 export type NavItem = { href: string; label: string; icon: keyof typeof ICONS };
+export type PlanChip = { label: string; sub: string; cta: string | null };
 
 function NavList({ nav, onNavigate }: { nav: NavItem[]; onNavigate?: () => void }) {
   const path = usePathname();
@@ -49,12 +50,14 @@ export function ShellChrome({
   userName,
   roleLabel,
   signOut,
+  plan,
   children,
 }: {
   nav: NavItem[];
   userName: string;
   roleLabel: string;
   signOut: () => Promise<void>;
+  plan?: PlanChip;
   children: React.ReactNode;
 }) {
   const [open, setOpen] = useState(false);
@@ -64,8 +67,9 @@ export function ShellChrome({
   }, [open]);
 
   const sidebar = (onNavigate?: () => void) => (
-    <div className="flex h-full flex-col bg-brand-950 py-5">
-      <div className="mb-6 flex items-center justify-between px-5">
+    <div className="flex h-full flex-col bg-brand-950">
+      {/* Same height as the top bar, so both bottom edges line up */}
+      <div className="flex h-16 shrink-0 items-center justify-between border-b border-white/8 px-5">
         <Logo light href={nav[0].href} />
         {onNavigate && (
           <button onClick={onNavigate} className="rounded-lg p-1.5 text-brand-100 hover:bg-white/10" aria-label="Close menu">
@@ -73,11 +77,18 @@ export function ShellChrome({
           </button>
         )}
       </div>
-      <p className="eyebrow mb-2 px-6 !text-brand-300/70">{roleLabel}</p>
+      <p className="eyebrow mb-2 mt-6 px-6 !text-brand-300/70">{roleLabel}</p>
       <div className="flex-1 overflow-y-auto">
         <NavList nav={nav} onNavigate={onNavigate} />
       </div>
-      <div className="mx-3 mt-4 flex items-center gap-3 rounded-2xl bg-white/6 p-3">
+      {plan && (
+        <Link href="/patient/subscription" onClick={onNavigate} className="mx-3 mt-4 block rounded-2xl bg-[linear-gradient(120deg,rgb(15_154_143/0.35),rgb(59_51_166/0.45)_55%,rgb(192_38_168/0.35))] p-3.5 ring-1 ring-white/10 transition hover:ring-white/25">
+          <p className="text-sm font-semibold text-white">{plan.label}</p>
+          <p className="mt-0.5 text-xs text-brand-100/80">{plan.sub}</p>
+          {plan.cta && <p className="mt-2 text-xs font-bold text-white">{plan.cta} →</p>}
+        </Link>
+      )}
+      <div className="mx-3 mb-4 mt-3 flex items-center gap-3 rounded-2xl bg-white/6 p-3">
         <Avatar name={userName} size={36} dark />
         <div className="min-w-0 flex-1">
           <p className="truncate text-sm font-semibold text-white">{userName}</p>
@@ -94,7 +105,10 @@ export function ShellChrome({
 
   return (
     <div className="min-h-screen lg:flex">
-      <aside className="hidden lg:sticky lg:top-0 lg:block lg:h-screen lg:w-[264px] lg:shrink-0">{sidebar()}</aside>
+      {/* The dark panel runs the full page height; its contents stay pinned while the page scrolls */}
+      <aside className="hidden bg-brand-950 lg:block lg:w-[264px] lg:shrink-0">
+        <div className="lg:sticky lg:top-0 lg:h-screen">{sidebar()}</div>
+      </aside>
 
       {open && (
         <div className="fixed inset-0 z-40 lg:hidden">

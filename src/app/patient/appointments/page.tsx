@@ -1,3 +1,4 @@
+import { getEntitlements, hasFeature } from "@/lib/plans";
 import Link from "next/link";
 import { requireRole } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
@@ -24,6 +25,7 @@ type Appt = {
 export default async function PatientAppointments({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
   const sp = await searchParams;
   const user = await requireRole("patient");
+  const canMessage = hasFeature(await getEntitlements(user.id), "messaging");
   const supabase = await createClient();
   const { data } = await supabase
     .from("appointments")
@@ -80,7 +82,7 @@ export default async function PatientAppointments({ searchParams }: { searchPara
                         {a.type === "audio" ? <Phone className="size-4" /> : <Video className="size-4" />} {joinable ? "Join now" : "Session room"}
                       </Link>
                     )}
-                    <Link href={`/patient/messages/${a.therapist_id}`} className="btn-secondary"><MessageCircle className="size-4" /> Message</Link>
+                    {canMessage && <Link href={`/patient/messages/${a.therapist_id}`} className="btn-secondary"><MessageCircle className="size-4" /> Message</Link>}
                     {canChange && (
                       <>
                         <Link href={`/patient/appointments/${a.id}/reschedule`} className="btn-secondary">Reschedule</Link>
